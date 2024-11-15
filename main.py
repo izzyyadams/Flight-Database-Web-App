@@ -20,7 +20,7 @@ def userHome():
     #cursor.execute('SELECT first_name FROM customer WHERE email = %s', (email,))
     #user = cursor.fetchone()
     #cursor.close()
-    return render_template('index.html')
+    return render_template('userHome.html')
     #if user:
      #   name = user['first_name'] 
       #  return render_template('index.html', name=name)
