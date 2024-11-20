@@ -1,11 +1,114 @@
 <html>
     <head>
         <title>Trip Search Template</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="static/style.css">
+        <script src="static/tripSearch.js"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
     </head>
     <body>
-        <h1>Find your next trip!</h1>
-        <form>
-            
-        </form>
+        <div class="title">
+            <h1>Find your next trip!</h1>
+        </div>
+        <div class="flightForm">
+            <!--form for flight search-->
+            <form class="flightSearch" id="customerFlightSearch" action="/search" method="POST">
+                <div class="locations">
+                    <!--Starting point drop down-->
+                    <label for="startingPoint">Starting Location:</label>
+                    <select id="startingPoint" name="startingPoint">
+                        <option value="New York">New York</option>
+                        <option value="Minneapolis">Minneapolis</option>
+                        <option value="Shanghai">Shanghai</option>
+                    </select>
+                    <!--destination drop down-->
+                    <label for="destination">Destination:</label>
+                    <select id="destination" name="destination">
+                        <option value="New York">New York</option>
+                        <option value="Minneapolis">Minneapolis</option>
+                        <option value="Shanghai">Shanghai</option>
+                    </select>
+                </div>
+
+                <div class="typeSelection">
+                    <!--One way or round trip-->
+                    <input type="radio" id="one-way" name="tripType" value="one-way">
+                    <label for="one-way">one-way</label>
+
+                    <input type="radio" id="round-trip" name="tripType" value="round-trip">
+                    <label for="round-trip">round-trip</label>
+                </div>
+
+                <div class="deptDate">
+                    <!--departure date-->
+                    <label for="deptMonth">Departure Date:</label>
+                    <!--month-->
+                    <select name="deptMonth" id="deptMonth">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                    <!--day-->
+                    <input type="text" id="deptDay" name="deptDay" placeholder="day">
+
+                    <!--year-->
+                    <select name="deptYear" id="deptYear">
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                    </select>
+                </div>
+
+                <div class="returnDate" id="returnDate">
+                    <!--return date, only shows if round trip is selected-->
+                    <label for="retMonth">Return Date:</label>
+                    <!--month-->
+                    <select name="retMonth" id="retMonth">
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June">June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October">October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
+                    <!--day-->
+                    <input type="text" id="retDay" name="retDay" placeholder="day">
+
+                    <!--year-->
+                    <select name="retYear" id="retYear">
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                    </select>
+                </div>
+
+                <button type="submit">Search</button>
+
+
+
+
+             </form>
+        </div>
     </body>
 </html>
