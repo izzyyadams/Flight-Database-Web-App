@@ -3,31 +3,33 @@ import pymysql
 
 conn = pymysql.connect(host='localhost', 
                        user='root', 
-                       password='root', 
+                       password='', 
                        db='flying_schema',
                        charset="utf8mb4",
                        cursorclass=pymysql.cursors.DictCursor)
 
 app = Flask(__name__)
 
-#app.secret_key = 'isabelle'
+app.secret_key = 'isabelle'
 
 
 @app.route('/userHome')
 def userHome():
-    #email = session['email']
-    #cursor=conn.cursor()
-    #cursor.execute('SELECT first_name FROM customer WHERE email = %s', (email,))
-    #user = cursor.fetchone()
-    #cursor.close()
-    return render_template('userHome.html')
-    #if user:
-     #   name = user['first_name'] 
-      #  return render_template('index.html', name=name)
+    #JUST FOR TESTING
+    session['email'] = 'alaska@mr.com'
+    email = session['email']
+    cursor=conn.cursor()
+    cursor.execute('SELECT first_name FROM customer WHERE email = %s', (email,))
+    user = cursor.fetchone()
+    cursor.close()
+    if user:
+        name = user['first_name'] 
+        return render_template('userHome.html', name=name)
+    else:
+        error_message = "User not found. Please check your login details."
+        return render_template('userHome.html', error=error_message)
     
-@app.route('/userTrips')
-def userTrips():
-    return render_template('userTrips.html')
+
 
 @app.route('/tripSearch', methods=['GET', 'POST'])
 def tripSearch():
@@ -53,28 +55,28 @@ def tripSearch():
 
         
         
+    
         cursor =  conn.cursor()
+        print("Starting Point:", startingPoint)
+        print("Destination:", destination)
+        print("Departure Date:", deptDate)
 
         #round trip query
         if tripType == 'round-trip':
             query = """SELECT * 
-                       FROM flights 
-                       WHERE startingPoint=%s AND destination=%s AND deptDate=%s AND retDate=%s"""
+                       FROM flight 
+                       WHERE airport_code=%s AND arrival_airport_code=%s AND departure=%s AND arrival=%s"""
             cursor.execute(query, (startingPoint, destination, deptDate, retDate))
 
         #one way query
         else:
             query = """SELECT * 
-                       FROM flights 
-                       WHERE startingPoint=%s AND destination=%s AND deptDate=%s"""
+                       FROM flight 
+                       WHERE airport_code=%s AND arrival_airport_code=%s AND DATE(departure)=%s"""
             cursor.execute(query, (startingPoint, destination, deptDate))
         
         results = cursor.fetchall()
-
-        if results:
-            return render_template('results.html', results=results)
-        else:
-            return render_template('results.html', message='No flights found')
+        return render_template('results.html', results=results)
 
 
             
@@ -82,8 +84,6 @@ def tripSearch():
 
     return render_template('tripSearch.html')
 
-
-        
 
 
 if __name__ == "__main__":
