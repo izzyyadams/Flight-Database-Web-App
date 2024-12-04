@@ -18,23 +18,32 @@
         </div>
         <div class="upcomingTrips">
             <h2 class="subheading">Upcoming Trips</h2>
-            <div class="flights">
-                <div class = "sectionFlight line1">
-                    <p>United{{ airline_name }}</p>
-                    <p>12/8{{ date }}</p>
-                </div>
-                <div class = "sectionFlight line2">
-                    <p>8:00AM{{ departTime }}</p>
-                    <p> ----------------------------------------></p>
-                    <p>6:00PM{{ arriveTime }}</p>
-                </div>
-                <div class = "sectionFlight line3">
-                    <p>New York{{ airport }}</p>
-                    <p>Minneapolis{{ arrival_airport }}</p>
-                </div>
-                <div class = "sectionFlight line4">
-                    <button>Cancel Flight</button>
-            </div>
+                {% if flightInfo %}
+                    {% for flight in flightInfo %}
+                        <div class="flights">
+                            <div class = "sectionFlight line1">
+                                <p>{{ flight['airline'] }}</p>
+                                <p>{{ flight['departureDate'] }}</p>
+                            </div>
+                            <div class = "sectionFlight line2">
+                                <p>{{ flight['departureTime'] }}</p>
+                                <p> ----------------------------------------></p>
+                                <p>{{ flight['arrivalTime'] }}</p>
+                            </div>
+                            <div class = "sectionFlight line3">
+                                <p>{{ flight['departureLocation'] }}</p>
+                                <p>{{ flight['arrivalLocation'] }}</p>
+                            </div>
+                            <div class = "sectionFlight line4">
+                                <button>Cancel Flight</button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class ="message">
+                        <p>You don't have any upcoming flights</p>
+                    </div>
+                {% endif %}
         </div>
     </body>
 </html>
