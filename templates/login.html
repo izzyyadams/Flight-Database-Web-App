@@ -19,7 +19,7 @@
         <div class ='login-container'>
             <div class="login">
                 <h2 class="subheading">Please enter username or email and password</h2>
-                <form action="/LoginAuth" method = "POST">
+                <form action="/loginAuth" method = "POST">
                     <input
                         type="text"
                         name="username"
@@ -40,8 +40,8 @@
                         class="form-button"
                         />
                     {% if error %}
-                        <p class="error"><strong>Error:</strong>{{error</p>
-                    {% endif}
+                        <p class="error"><strong>Error:</strong>{{ error }}</p>
+                    {% endif %}
                 </form>
             </div>
         </div>
