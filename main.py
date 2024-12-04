@@ -208,7 +208,8 @@ def staffHome():
         cursor.execute(query)
         flights = cursor.fetchall()
 
-        cursor.execute("SELECT first_name FROM staff WHERE username = %s", (username,))
+        curosr2 = conn.cursor()
+        cursor2.execute("SELECT first_name FROM staff WHERE username = %s", (username,))
         user = cursor.fetchone()
         name = user['first_name']
         return render_template('staffHome.html', flights=flights, name = name)
