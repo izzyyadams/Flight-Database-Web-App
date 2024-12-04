@@ -118,13 +118,13 @@ def determine_user_type(email, password):
 
     cursor.execute('SELECT password FROM Customer WHERE email = %s', (email,))
     customer = cursor.fetchone()
-    if customer and check_password_hash(customer[0], password):
+    if customer and customer['password'] == password:
 
         return "customer"
 
     cursor.execute('SELECT password FROM Staff WHERE email = %s', (email,))
     staff = cursor.fetchone()
-    if staff and check_password_hash(staff[0], password):
+    if staff and customer['password' == password:
 
         return "staff"
 
