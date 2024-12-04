@@ -1,4 +1,5 @@
 from flask import Flask, render_template, session, request, url_for, redirect
+from datetime import datetime
 import pymysql
 
 conn = pymysql.connect(host='localhost', 
@@ -17,17 +18,46 @@ app.secret_key = 'isabelle'
 def userHome():
     #JUST FOR TESTING
     session['email'] = 'alaska@mr.com'
+    #end just for testing
+    
+    #gets name of user
     email = session['email']
     cursor=conn.cursor()
     cursor.execute('SELECT first_name FROM customer WHERE email = %s', (email,))
     user = cursor.fetchone()
     cursor.close()
-    if user:
-        name = user['first_name'] 
-        return render_template('userHome.html', name=name)
-    else:
-        error_message = "User not found. Please check your login details."
-        return render_template('userHome.html', error=error_message)
+    name = user['first_name'] 
+
+    #gets flights of user
+    cursor2 = conn.cursor()
+    cursor2.execute('SELECT flight.airline_name, flight.airport_code, flight.arrival, flight.departure, flight.arrival_airport_code FROM ticket INNER JOIN flight ON ticket.flight_num = flight.flight_num WHERE ticket.email = %s', (email,))
+    userFlights = cursor2.fetchall()
+    cursor2.close()
+    flightInfoList= []
+    for flight in userFlights:
+
+        airline = flight['airline_name']
+        departureLocation = flight['airport_code']
+        arrivalDateTime = flight['arrival']
+        departureDateTime = flight['departure']
+        arrivalLocation = flight['arrival_airport_code']
+
+        arrivalDate = arrivalDateTime.strftime("%B %d, %Y")
+        arrivalTime = arrivalDateTime.strftime("%I:%M %p").lstrip("0").replace(":00", "")
+        departureDate = departureDateTime.strftime("%B %d, %Y")
+        departureTime = departureDateTime.strftime("%I:%M %p").lstrip("0").replace(":00", "")
+        flightInfo = {
+            "airline": airline,
+            "departureLocation": departureLocation,
+            "arrivalDate": arrivalDate,
+            "arrivalTime": arrivalTime,
+            "departureDate": departureDate,
+            "departureTime": departureTime,
+            "arrivalLocation": arrivalLocation
+        }
+        flightInfoList.append(flightInfo)
+
+    return render_template('userHome.html', name=name, flightInfo=flightInfoList)
     
 
 
@@ -57,9 +87,7 @@ def tripSearch():
         
     
         cursor =  conn.cursor()
-        print("Starting Point:", startingPoint)
-        print("Destination:", destination)
-        print("Departure Date:", deptDate)
+
 
         #round trip query
         if tripType == 'round-trip':
