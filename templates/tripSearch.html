@@ -5,47 +5,92 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="static/style.css">
         <script src="static/tripSearch.js"></script>
-        <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Calistoga&family=Lexend:wght@100..900&display=swap" rel="stylesheet">
 
     </head>
     <body>
-        <div class="title">
+        <div class="navigation">
+            <div><a href="{{ url_for('userHome') }}">Home</a></div>
+        </div>
+        <div class="heading">
             <h1>Find your next trip!</h1>
         </div>
         <div class="flightForm">
             <!--form for flight search-->
             <form class="flightSearch" id="customerFlightSearch" action="/tripSearch" method="POST">
-                <div class="locations">
+                <div class="formSection locations">
                     <!--Starting point drop down-->
-                    <label for="startingPoint">Starting Location:</label>
-                    <select id="startingPoint" name="startingPoint">
-                        <option value="JFK">New York</option>
-                        <option value="MSP">Minneapolis</option>
-                        <option value="PVG">Shanghai</option>
-                    </select>
+                    <div>
+                        <label for="startingPoint">From:</label>
+                        <select id="startingPoint" name="startingPoint">
+                            <option value="JFK">New York</option>
+                            <option value="MSP">Minneapolis</option>
+                            <option value="PVG">Shanghai</option>
+                        </select>
+                    </div>
+                    <div><p>-----------------------------------></p></div>
                     <!--destination drop down-->
-                    <label for="destination">Destination:</label>
-                    <select id="destination" name="destination">
-                        <option value="JFK">New York</option>
-                        <option value="MSP">Minneapolis</option>
-                        <option value="PVG">Shanghai</option>
-                    </select>
+                    <div>
+                        <label for="destination">To:</label>
+                        <select id="destination" name="destination">
+                            <option value="JFK">New York</option>
+                            <option value="MSP">Minneapolis</option>
+                            <option value="PVG">Shanghai</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div class="typeSelection">
+                <div class="formSection typeSelection">
                     <!--One way or round trip-->
-                    <input type="radio" id="one-way" name="tripType" value="one-way">
-                    <label for="one-way">one-way</label>
-
-                    <input type="radio" id="round-trip" name="tripType" value="round-trip">
-                    <label for="round-trip">round-trip</label>
+                    <div>
+                        <input type="radio" id="one-way" name="tripType" value="one-way" checked>
+                        <label for="one-way">one-way</label>
+                    </div>
+                    
+                    <div>
+                        <input type="radio" id="round-trip" name="tripType" value="round-trip">
+                        <label for="round-trip">round-trip</label>
+                    </div>
                 </div>
 
-                <div class="deptDate">
-                    <!--departure date-->
-                    <label for="deptMonth">Departure Date:</label>
+                <div class="formSection deptDate">
+                    <div>
+                        <!--departure date-->
+                        <label for="deptMonth">Departure Date:</label>
+                        <!--month-->
+                        <select name="deptMonth" id="deptMonth">
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                        <!--day-->
+                        <input type="text" id="deptDay" name="deptDay" placeholder="day">
+
+                        <!--year-->
+                        <select name="deptYear" id="deptYear">
+                            <option value="2022">2022</option>
+                            <option value="2023">2023</option>
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                            <option value="2026">2026</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="formSection returnDate" id="returnDate">
+                    <!--return date, only shows if round trip is selected-->
+                    <label for="retMonth">Return Date:</label>
                     <!--month-->
-                    <select name="deptMonth" id="deptMonth">
+                    <select name="retMonth" id="retMonth">
                         <option value="1">January</option>
                         <option value="2">February</option>
                         <option value="3">March</option>
@@ -60,37 +105,6 @@
                         <option value="12">December</option>
                     </select>
                     <!--day-->
-                    <input type="text" id="deptDay" name="deptDay" placeholder="day">
-
-                    <!--year-->
-                    <select name="deptYear" id="deptYear">
-                        <option value="2022">2022</option>
-                        <option value="2023">2023</option>
-                        <option value="2024">2024</option>
-                        <option value="2025">2025</option>
-                        <option value="2026">2026</option>
-                    </select>
-                </div>
-
-                <div class="returnDate" id="returnDate">
-                    <!--return date, only shows if round trip is selected-->
-                    <label for="retMonth">Return Date:</label>
-                    <!--month-->
-                    <select name="retMonth" id="retMonth">
-                        <option value="January">January</option>
-                        <option value="February">February</option>
-                        <option value="March">March</option>
-                        <option value="April">April</option>
-                        <option value="May">May</option>
-                        <option value="June">June</option>
-                        <option value="July">July</option>
-                        <option value="August">August</option>
-                        <option value="September">September</option>
-                        <option value="October">October</option>
-                        <option value="November">November</option>
-                        <option value="December">December</option>
-                    </select>
-                    <!--day-->
                     <input type="text" id="retDay" name="retDay" placeholder="day">
 
                     <!--year-->
@@ -103,7 +117,7 @@
                     </select>
                 </div>
 
-                <button type="submit">Search</button>
+                <div class="formSection searchButton"><button type="submit">Search</button></div>
 
 
 

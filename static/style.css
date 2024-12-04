@@ -20,6 +20,7 @@ body{
     font-size: 2.7vw;
 }
 
+
 /*Button styling*/
 button {
     background-color: #fb813e;
@@ -85,17 +86,11 @@ button:hover {
     font-size: 1.2vw;
 }
 
-.line1 {
-
-}
 
 .line2 {
     font-size: 1.6vw;
 }
 
-.line3 {
-
-}
 
 .line4 {
     justify-content: center;
@@ -103,17 +98,43 @@ button:hover {
 
 /*Styling for flight search*/
 .flightForm{
+    border: 4px solid #468bca;
+    border-radius: 10px;
+    padding: 10px 30px 10px 30px ;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
+    align-items: s;
     font-size: 3vw;
-    font-weight: 300;
-    text-align: left;
-    line-height: 1.8;
+    font-family: "Lexend", sans-serif;
+    font-size: 1.2vw;
+    width: 50vw;
+    background-color: #f2efea;
 
+}
+
+.formSection {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    align-items: center;
 }
 
 /*Return date is hidden until round-trip is clicked*/
 #returnDate{
     display: none;
+    justify-content: center;
+}
+
+
+
+.locations p{
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.typeSelection {
+    justify-content: space-between;
+    padding-left: 200px;
+    padding-right: 200px;
 }
