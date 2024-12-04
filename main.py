@@ -198,6 +198,22 @@ def homepage():
 
     return render_template('homepage.html')
 
+# ISABELLE 
+@app.route('/staffHome', methods=['GET'])
+def staffHome():
+    if 'role' in session and session['role'] == 'staff':
+        username = session['user']
+        cursor = conn.cursor()
+        query = "SELECT * FROM flight WHERE (departure > NOW() and departure < current_date + INTERVAL '1 MONTH'"
+        cursor.execute(query)
+        flights = cursor.fetchall()
+
+        cursor.execute("SELECT first_name FROM staff WHERE username = %s", (username,))
+        user = cursor.fetchone()
+        name = user['first_name']
+        return render_template('staffHome.html', flights=flights, name = name)
+    else:
+        return redirect(url_for('loginAuth'))
 
 
 
