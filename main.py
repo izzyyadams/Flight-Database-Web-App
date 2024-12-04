@@ -135,13 +135,13 @@ def determine_user_type(email, password):
 
     cursor.execute('SELECT password FROM Customer WHERE email = %s', (email,))
     customer = cursor.fetchone()
-    if customer and check_password_hash(customer[0], password):
+    if customer and customer['password'] == password:
 
         return "customer"
 
     cursor.execute('SELECT password FROM Staff WHERE email = %s', (email,))
     staff = cursor.fetchone()
-    if staff and check_password_hash(staff[0], password):
+    if staff and customer['password' == password:
 
         return "staff"
 
@@ -213,6 +213,23 @@ def homepage():
 
     return render_template('homepage.html')
 
+# ISABELLE 
+@app.route('/staffHome', methods=['GET'])
+def staffHome():
+    if 'role' in session and session['role'] == 'staff':
+        username = session['user']
+        cursor = conn.cursor()
+        query = "SELECT * FROM flight WHERE (departure > NOW() and departure < current_date + INTERVAL '1 MONTH'"
+        cursor.execute(query)
+        flights = cursor.fetchall()
+
+        curosr2 = conn.cursor()
+        cursor2.execute("SELECT first_name FROM staff WHERE username = %s", (username,))
+        user = cursor.fetchone()
+        name = user['first_name']
+        return render_template('staffHome.html', flights=flights, name = name)
+    else:
+        return redirect(url_for('loginAuth'))
 
 
 
