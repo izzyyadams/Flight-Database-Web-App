@@ -495,6 +495,238 @@ def staffLogout():
 
     return render_template('staffLogout.html')
 
+#create flight function -ISABELLE 
+@app.route('/createFlight', methods=['GET', 'POST'])
+def createFlight():
+    if 'role' in session and session['role'] == 'staff':
+        if request.method == 'POST':
+            # create a new flight
+            flight_num = request.form['flight_num']
+            airline_name = request.form['airline_name']
+            airplane_id = request.form['airplane_id']
+            airport_code = request.form['airport_code']
+            arrival = request.form['arrival']
+            departure = request.form['departure']
+            base_price = request.form['base_price']
+            arrival_airport_code = request.form['arrival_airport_code']
+            status = request.form['status']
+
+            cursor = conn.cursor()
+            query = 'SELECT * FROM flight WHERE flight_num = %'
+            cursor.execute(query, (flight_num,))
+
+            data = cursor.fetchone()
+
+            if data:
+                # if the query returns data than the flight already exists
+                error = "This flight already exists."
+                cursor.close()
+                return render_template(createFlight.template, error=error)
+
+            else:
+                ins = 'INSERT INTO flight VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)'
+                cursor.execute(ins, (flight_num,airline_name,airplane_id,airport_code,arrival,departure,base_price, arrival_airport_code,status))
+                conn.commit()
+                cursor.close()
+
+                return render_template('createFlight.html')
+
+        return redirect(url_for('staffHome'))
+
+    else:
+        return redirect(url_for('loginAuth'))
+
+
+#add airplane function - ISABELLE 
+def addAirplane():
+    if 'role' in session and session['role'] == 'staff':
+        if request.method == 'POST':
+            # add a new airplane
+            airplane_id = request.form['airplane_id']
+            airline_name = request.form['airline_name']
+            manufacturer = request.form['manufacturer']
+            model_number = request.form['model_number']
+            manufactur_date = request.form['manufacturer_date']
+            num_seats = request.form['num_seats']
+
+            cursor = conn.cursor()
+            query = 'SELECT * FROM Airplane WHERE flight_num = %'
+            cursor.execute(query, (airplane_id,))
+
+            data = cursor.fetchone()
+
+            if data:
+                #there already is a plane with this id
+                error = "This plane already exists."
+                cursor.close()
+                return render_template(addAirplane.template, error=error)
+            else:
+                ins = 'INSERT INTO Airplane VALUES (%s, %s, %s, %s, %s, %s)'
+                cursor.execute(ins, (airplane_id, airline_name, manufacturer, model_number, manufactur_date, num_seats))
+                conn.commit()
+                cursor.close()
+                return render_template("addAirplane.html")
+
+        return redirect(url_for('staffHome'))
+
+    else:
+        return redirect(url_for('loginAuth'))
+
+# add new airport, accessed within the staffHome page - ISABELLE
+@app.route('/addAirport', methods=['GET', 'POST'])
+def addAirport():
+    if 'role' in session and session['role'] == 'staff':
+        if request.method == 'POST':
+            # add an airport
+            airport_code = request.form['airport_code']
+            airport_name = request.form['airport_name']
+            city = request.form['city']
+            country = request.form['country']
+            num_terminals = request.form['num_terminals']
+
+            cursor = conn.cursor()
+            query = 'SELECT * FROM Airport WHERE airport_code = %'
+            cursor.execute(query, (airport_code,))
+            data = cursor.fetchone()
+
+            if data:
+                error = "This airport already exists."
+                cursor.close()
+                return render_template(addAirport.template, error=error)
+
+            else:
+                ins = 'INSERT INTO Airport VALUES (%s, %s, %s, %s, %s)'
+                cursor.execute(ins, (airport_code, airport_name, city, country, num_terminals))
+                conn.commit()
+                cursor.close()
+                return render_template("addAirport.html")
+
+
+        return redirect(url_for('staffHome'))
+
+    else:
+        return redirect(url_for('loginAuth'))
+
+# view ratings, accessed within the staffHome -ISABELLE
+@app.route('/viewRatings', methods=['GET'])
+def viewRatings():
+    if 'role' in session and session['role'] == 'staff':
+        # gets the ratings from the flight
+        cursor = conn.cursor()
+
+        cursor.execute('SELECT ticket.rating, ticket.flight_num, ticket.comment FROM Ticket INNER JOIN Flight on Ticket.flight_num = Flight.flight_num')
+        flraco = cursor.fetchall()
+        flight_data = {}
+
+        for entry in flraco:
+            flight_num = entry['flight_num']
+            rating = entry['rating']
+            comment = entry['comment']
+
+            if flight_num not in flight_data:
+                flight_data[flight_num] = {'ratings' : [], 'comments' : []}
+
+            if rating is not None:
+                flight_data[flight_num]['ratings'].append(rating)
+            if comment:
+                flight_data[flight_num]['comments'].append(comment)
+
+        flight_averages = {
+            flight_num: sum(data['ratings']) / len(data['ratings']) if data['ratings'] else None
+            for flight_num, data in flight_data.items()
+        }
+        flight_details = []
+        for flight_num, data in flight_data.items():
+            flight_details.append({
+                "flight_num": flight_num, "average": flight_averages[flight_num], 'comments': data['comments']
+            })
+
+        cursor.close()
+
+        return render_template('viewRatings.html', flight_details=flight_details)
+    else:
+        return redirect(url_for('loginAuth'))
+
+
+
+
+
+# scheudle maitence, accessed within the staffHome page - ISABELLE
+@app.route('/scheduleMaintenance', methods=['GET', 'POST'])
+def scheduleMaintenance():
+    if 'role' in session and session['role'] == 'staff':
+        if request.method == 'POST':
+            # logic to schedule maitence
+            airplane_id = request.form['airplane_id']
+            start_date_time = request.form['start_date_time']
+            end_date_time = request.form['end_date_time']
+
+            cursor = conn.cursor()
+            query = 'SELECT * FROM Maintenance WHERE flight_num = %'
+            cursor.execute(query, (airplane_id,))
+
+            data = cursor.fetchone()
+
+            if data:
+                error = "Maintenance has already been scheduled on this plane."
+                cursor.close()
+                return render_template("scheduleMaintenance.html", error=error)
+
+            else:
+                ins = 'INSERT INTO Maintenance VALUES (%s, %s, %s)'
+                cursor.execute(ins, (airplane_id, start_date_time, end_date_time))
+                conn.commit()
+                cursor.close()
+                return render_template("scheduleMaintenance.html")
+
+
+        return redirect(url_for('staffHome'))
+
+    else:
+        return redirect(url_for('loginAuth'))
+
+# customers, accessed within the staffHome page - ISABELLE (NOT DONE!!!!!!)
+@app.route('/viewCustomers', methods=['GET'])
+def viewCustomers():
+    if 'role' in session and session['role'] == 'staff':
+        # get and display customers
+        return render_template("viewCustomers.html")
+    else:
+        return redirect(url_for('loginAuth'))
+
+
+# views the monthly and yearly revenue- ISABELLE
+@app.route('/viewRevenue', methods=['GET'])
+def viewRevenue():
+    if 'role' in session and session['role'] == 'staff':
+
+        cursor = conn.cursor()
+
+        from datetime import datetime, timedelta
+        current_date = datetime.now()
+        one_month_later = current_date + timedelta(days=30)
+
+        query = 'SELECT base_price, departure FROM Flight'
+        cursor.execute(query)
+        revenue_month = 0
+        revenue_year = 0
+
+        data = cursor.fetchall()
+        cursor.close()
+        for ticket in data:
+            base_price = ticket['base_price']
+            departure = ticket['departure']
+            departure_date = datetime.strptime(departure, '%Y-%m-%d %H:%M:%S')
+            if departure_date < one_month_later:
+                revenue_month += base_price
+            revenue_year += base_price
+
+        return render_template("viewRevenue.html", revenue_month=revenue_month, revenue_year=revenue_year)
+    else:
+        return redirect(url_for('loginAuth'))
+
+
+
 
 
 
