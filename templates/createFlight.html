@@ -1,0 +1,33 @@
+<html>
+    <head>
+        <title>Login</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="static/style.css">
+        <script src="static/tripSearch.js"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Calistoga&family=Lexend:wght@100..900&display=swap" rel="stylesheet">
+    </head>
+<body>
+<div class="navigation">
+            <div><a href="{{ url_for('staffHomepage') }}">Return to Home</a></div>
+        </div>
+        <div class="heading">
+            <h1>Add a New Flight</h1>
+        </div>
+<h2 class="subheading">Please enter the required information</h2>
+<form action="/createFlight" method="POST">
+    <input type="number" name="flight_num" placeholder="flight_num"/></br>
+    <input type="text" name="airplane_name" placeholder="airplane_name"/></br>
+    <input type="number" name="airplane_id" placeholder="airplane_id"/></br>
+    <input type="text" name="airport_code" placeholder="airport_code"/></br>
+    <input type="datetime-local" name="arrival" placeholder="arrival"/></br>
+    <input type="datetime-local" name="departure" placeholder="departure"/></br>
+    <input type="text" name="base_price" placeholder="base_price"/></br>
+    <input type="text" name="arrival_airport_code" placeholder="arrival_airport_code"/></br>
+    <input type="text" name="status" placeholder="status"/></br>
+    {% if error %}
+        <p class="error"><strong>Error:</strong>{{error}}</p>
+    {% endif}
+</form>
+</body>
+</html>
