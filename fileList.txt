@@ -1,0 +1,30 @@
+Files:
+
+HTML:
+
+homepage.html:
+login.html:
+staffHome.html:
+
+userHome.html: structure of user home page
+tripSearch.html: structure of user trip search
+purchaseTicket.html: structure of purchasing a ticket page
+results.html: structure of flight search results page
+spending.html: structure of user spending data page
+userLogout.html: structure of logout page for user
+userPastFlights: structure of user's past flights
+
+
+
+
+JS:
+spending.js: displays userInput spending divs 
+tripSearch.js: hides second date entry for round-trip logic
+
+PYTHON:
+main.py: 
+
+TXT:
+fileList.txt: this file
+
+
