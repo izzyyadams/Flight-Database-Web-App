@@ -482,6 +482,22 @@ def staffRegister():
         return render_template("loginAuth.html")
 
 
+# staff logout function - ISABELLE 
+@app.route('/staffLogout', methods=['GET', 'POST'])
+def staffLogout():
+    if request.method == 'POST':
+        yesNo = request.form['yesNo']
+        if yesNo == 'logout':
+            session.clear()
+            return redirect(url_for('loginAuth'))
+        else:
+            return redirect(url_for('staffHome'))
+
+    return render_template('staffLogout.html')
+
+
+
+
 
 
 
