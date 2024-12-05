@@ -420,6 +420,68 @@ def staffHome():
     else:
         return redirect(url_for('loginAuth'))
 
+# Function to register a customer - ISABELLE 
+@app.route('/customerRegister', methods=['GET', 'POST'])
+def customerRegister():
+    username = request.form['email']
+    passport_country = request.form['passport_country']
+    first_name = request.form['first_name']
+    last_name = request.form['last_name']
+    password = request.form['password']
+    dob = request.form['dob']
+    address = request.form['address']
+    passport_number = request.form['passport_number']
+    passport_exp_date = request.form['passport_exp_date']
+
+    cursor = conn.cursor()
+    query = 'Select * FROM Customer WHERE username = %'
+    cursor.execute(query, (username,))
+    data = cursor.fetchone()
+
+    if data:
+        error = "This customer already exists."
+        cursor.close()
+        return render_template("customerRegister.html", error=error)
+
+    else:
+        ins = 'INSERT INTO Customer VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)'
+        cursor.execute(ins, (username,passport_country, first_name, last_name,password, address, passport_number, dob, address, passport_exp_date))
+
+        conn.commit()
+        cursor.close()
+        return render_template("loginAuth.html")
+
+
+#FUNCTION to register a staff -ISABELLE 
+@app.route('/staffRegister', methods=['GET', 'POST'])
+def staffRegister():
+    username = request.form['username']
+    airline_name = request.form['airline_name']
+    first_name = request.form['first_name']
+    last_name = request.form['last_name']
+    dob = request.form['dob']
+    password = request.form['password']
+    phone_number = request.form['phone_number']
+    email = request.form['email']
+
+    cursor = conn.cursor()
+    query = 'SELECT * FROM Staff WHERE username = %'
+    cursor.execute(query, (username,))
+    data = cursor.fetchone()
+
+    if data:
+        error = "This staff already exists."
+        cursor.close()
+        return render_template("staffRegister.html", error=error)
+
+    else:
+        ins = "INSERT INTO Staff VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+        cursor.execute(ins, (username, airline_name, first_name, last_name, dob, password, phone_number, email))
+        conn.commit()
+        cursor.close()
+        return render_template("loginAuth.html")
+
+
 
 
 
