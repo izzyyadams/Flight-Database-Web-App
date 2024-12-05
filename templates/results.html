@@ -9,6 +9,7 @@
     </head>
     <body>
         <div class="navigation">
+            <div><a href="{{ url_for('userHome')}}">Home</a></div>
             <div><a href="{{ url_for('tripSearch') }}">Flight Search</a></div>
         </div>
 
@@ -30,6 +31,9 @@
                                 <p>{{ leaving['departureLocation'] }}</p>
                                 <p>{{ leaving['arrivalLocation'] }}</p>
                             </div>
+                            <div class = "sectionFlight line4">
+                                <p>Status: {{ leaving['status'] }}</p>
+                            </div>
                             <br>
                             <br>
                             <br>
@@ -38,16 +42,28 @@
                                 <p>{{ returning['departureDate'] }}</p>
                             </div>
                             <div class = "sectionFlight line2">
-                                <p>{{ returning['departureTime'] }}</p>
-                                <p> <----------------------------------------</p>
                                 <p>{{ returning['arrivalTime'] }}</p>
+                                <p> <----------------------------------------</p>
+                                <p>{{ returning['departureTime'] }}</p>
                             </div>
                             <div class = "sectionFlight line3">
-                                <p>{{ returning['departureLocation'] }}</p>
                                 <p>{{ returning['arrivalLocation'] }}</p>
+                                <p>{{ returning['departureLocation'] }}</p>
                             </div>
                             <div class = "sectionFlight line4">
-                                <button>Purchase Ticket</button>
+                                <p>Status: {{ returning['status'] }}</p>
+                            </div>
+                            <div class = "sectionFlight line5">
+                                <p>${{ returning['basePrice'] }}</p>
+                            </div>
+                            <div class = "sectionFlight line6">
+                                <form action="/purchaseTicket" method="POST">
+                                    <input type="hidden" name="purchaseTicketNum1" value="{{ leaving['flightNum'] }}">
+                                    <input type="hidden" name="purchaseTicketPrice1" value="{{ leaving['basePrice'] }}">
+                                    <input type="hidden" name="purchaseTicketNum2" value="{{ returning['flightNum'] }}">
+                                    <input type="hidden" name="purchaseTicketPrice2" value="{{ returning['basePrice'] }}">
+                                    <button type="submit">Purchase Ticket</button>
+                                </form>
                             </div>
 
                         </div>
@@ -70,7 +86,20 @@
                                 <p>{{ flight['arrivalLocation'] }}</p>
                             </div>
                             <div class = "sectionFlight line4">
-                                <button>Purchase Ticket</button>
+                                <p>Status: {{ flight['status'] }}</p>
+                            </div>
+                            <div class = "sectionFlight line5">
+                                <p>${{ flight['basePrice'] }}</p>
+                            </div>
+                            <div class = "sectionFlight line6">
+                                <form action="/purchaseTicket" method="POST">
+                                    <input type="hidden" name="purchaseTicketNum1" value="{{ flight['flightNum'] }}">
+                                    <input type="hidden" name="purchaseTicketPrice1" value="{{ flight['basePrice'] }}">
+                                    <input type="hidden" name="purchaseTicketNum2" value="">
+                                    <input type="hidden" name="purchaseTicketPrice2" value="">
+                                    <button type="submit">Purchase Ticket</button>
+                                </form>
+
                             </div>
                         </div>
                     {% endfor %}

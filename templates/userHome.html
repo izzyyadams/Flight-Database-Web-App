@@ -35,7 +35,13 @@
                                 <p>{{ flight['arrivalLocation'] }}</p>
                             </div>
                             <div class = "sectionFlight line4">
-                                <button>Cancel Flight</button>
+                                <p>Status: {{ flight['status'] }}</p>
+                            </div>
+                            <div class = "sectionFlight line5">
+                                <form action="/cancelTicket" method="POST">
+                                    <input type="hidden" name="cancelTicket" value="{{ flight['flightNum']}}">
+                                    <button type="submit">Cancel Ticket</button>
+                                </form>
                             </div>
                         </div>
                     {% endfor %}

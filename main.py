@@ -18,24 +18,24 @@ def organizeData(results):
     flightInfoList= []
     for flight in results:
 
-        airline = flight['airline_name']
-        departureLocation = flight['airport_code']
+
         arrivalDateTime = flight['arrival']
         departureDateTime = flight['departure']
-        arrivalLocation = flight['arrival_airport_code']
-
         arrivalDate = arrivalDateTime.strftime("%B %d, %Y")
         arrivalTime = arrivalDateTime.strftime("%I:%M %p").lstrip("0").replace(":00", "")
         departureDate = departureDateTime.strftime("%B %d, %Y")
         departureTime = departureDateTime.strftime("%I:%M %p").lstrip("0").replace(":00", "")
         flightInfo = {
-            "airline": airline,
-            "departureLocation": departureLocation,
+            "airline": flight['airline_name'],
+            "departureLocation": flight['airport_code'],
             "arrivalDate": arrivalDate,
             "arrivalTime": arrivalTime,
             "departureDate": departureDate,
             "departureTime": departureTime,
-            "arrivalLocation": arrivalLocation
+            "arrivalLocation": flight['arrival_airport_code'],
+            "basePrice": flight['base_price'],
+            "status": flight['Status'],
+            "flightNum": flight['flight_num']
         }
         flightInfoList.append(flightInfo)
 
@@ -59,7 +59,7 @@ def userHome():
 
     #gets flights of user
     cursor2 = conn.cursor()
-    cursor2.execute('SELECT flight.airline_name, flight.airport_code, flight.arrival, flight.departure, flight.arrival_airport_code FROM ticket INNER JOIN flight ON ticket.flight_num = flight.flight_num WHERE ticket.email = %s', (email,))
+    cursor2.execute('SELECT flight.airline_name, flight.airport_code, flight.arrival, flight.departure, flight.arrival_airport_code, flight.base_price, flight.Status, flight.flight_num FROM ticket INNER JOIN flight ON ticket.flight_num = flight.flight_num WHERE ticket.email = %s', (email,))
     userFlights = cursor2.fetchall()
     cursor2.close()
     flightInfoList = organizeData(userFlights)
@@ -101,6 +101,8 @@ def tripSearch():
         organizedLeavingData = organizeData(leaving)
         cursor.close()
 
+
+
         #only happens if round-trip
         cursor =  conn.cursor()
         if tripType == 'round-trip':
@@ -116,18 +118,98 @@ def tripSearch():
             combinedData=[]
             organizedReturningData = []
 
-        
-
-
-
-        print("organizedData: ", organizedReturningData)
         return render_template('results.html', flightInfoLeaving=organizedLeavingData, flightInfoReturning=organizedReturningData, combinedData=combinedData, tripType=tripType)
-
-
             
 
 
     return render_template('tripSearch.html')
+
+#function to cancel ticket, sends user back to home IZZY
+
+@app.route('/cancelTicket', methods=['POST'])
+def cancelTicket():
+    email = session['email']
+    flightNum = request.form['cancelTicket']
+    cursor = conn.cursor()
+    query = """DELETE 
+                FROM Ticket
+                WHERE flight_num=%s and email=%s
+            """
+    cursor.execute(query, (flightNum, email))
+    conn.commit()
+    cursor.close()
+    
+    return redirect(url_for('userHome'))
+
+#function to actually purchase the ticket IZZY
+@app.route('/actualTicketPurchase', methods=['POST'])
+def actualTicketCancel():
+    purchaseDOBMonth = request.form['purchaseDOBMonth']
+    purchaseDOBDay = request.form['purchaseDOBDay']
+    purchaseDOBYear = request.form['purchaseDOBYear']
+    purchaseDOBDate = f"{purchaseDOBYear}-{purchaseDOBMonth}-{purchaseDOBDay}"  
+    
+    flight_num1 = request.form['purchaseInfoNum1']
+    calc_price1 = request.form['purchaseInfoPrice1']
+    purchaseEmail =request.form['purchaseEmail']
+    purchaseFirstName = request.form['purchaseFirstName']
+    purchaseLastName = request.form['purchaseLastName']
+    rating = None
+    comments = None
+    purchaseCardNum = request.form['purchaseCardNum']
+
+
+
+    
+
+    cursor = conn.cursor()
+    query = """SELECT MAX(ticket_id), MAX(purchase_id), NOW() FROM purchase"""
+
+    cursor.execute(query)
+    queryInfo = cursor.fetchall()
+    cursor.close()
+
+    ticket_id = queryInfo[0]['MAX(ticket_id)'] + 1
+    purchase_id = queryInfo[0]['MAX(purchase_id)'] + 1
+    now = queryInfo[0]['NOW()']
+    cursor = conn.cursor()
+    query = """INSERT INTO `Ticket` (`ticket_id`, `email`, `flight_num`, `rating`, `comments`, `calc_price`, `first_name`, `last_name`, `dob`) 
+            VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+    query2 = """INSERT INTO `Purchase` (`purchase_id`, `ticket_id`, `purchase_date_time`, `card_info`) 
+            VALUES(%s, %s, %s, %s)
+            """
+    cursor.execute(query, (ticket_id, purchaseEmail, flight_num1, rating, comments, calc_price1, purchaseFirstName, purchaseLastName, purchaseDOBDate))
+    cursor.execute(query2, (purchase_id, ticket_id, now, purchaseCardNum))
+    conn.commit()
+    flight_num2 = request.form['purchaseInfoNum2']
+    calc_price2 = request.form['purchaseInfoPrice2']
+    if flight_num2:
+
+        query = """INSERT INTO `Ticket` (`ticket_id`, `email`, `flight_num`, `rating`, `comments`, `calc_price`, `first_name`, `last_name`, `dob`) 
+            VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+
+        cursor.execute(query, (ticket_id, purchaseEmail, flight_num2, rating, comments, calc_price2, purchaseFirstName, purchaseLastName, purchaseDOBDate))
+    
+    cursor.close()
+
+
+    return redirect(url_for('userHome'))
+    
+
+           
+#function to get to purchase page IZZY
+@app.route('/purchaseTicket', methods=['GET', 'POST'])
+def purchaseTicketRound():
+    purchaseTicketFlightID1 = request.form['purchaseTicketNum1']
+    purchaseTicketPricee1 = request.form['purchaseTicketPrice1']
+    purchaseTicketFlightID2 = request.form['purchaseTicketNum2']
+    purchaseTicketPricee2 = request.form['purchaseTicketPrice2']
+    print(purchaseTicketFlightID2)
+
+    return render_template('purchaseTicket.html', purchaseInfoNum1=purchaseTicketFlightID1, purchaseInfoPrice1=purchaseTicketPricee1, purchaseInfoNum2=purchaseTicketFlightID2, purchaseInfoPrice2=purchaseTicketPricee2)
+
+
+
 
 # function to determine if the user is a customer or staff - ISABELLE
 def determine_user_type(email, password):
@@ -141,7 +223,7 @@ def determine_user_type(email, password):
 
     cursor.execute('SELECT password FROM Staff WHERE email = %s', (email,))
     staff = cursor.fetchone()
-    if staff and customer['password' == password:
+    if staff and customer['password' == password]:
 
         return "staff"
 
@@ -223,7 +305,7 @@ def staffHome():
         cursor.execute(query)
         flights = cursor.fetchall()
 
-        curosr2 = conn.cursor()
+        cursor2 = conn.cursor()
         cursor2.execute("SELECT first_name FROM staff WHERE username = %s", (username,))
         user = cursor.fetchone()
         name = user['first_name']
