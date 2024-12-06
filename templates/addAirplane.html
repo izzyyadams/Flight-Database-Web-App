@@ -1,0 +1,30 @@
+<html>
+    <head>
+        <title>Login</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="static/style.css">
+        <script src="static/tripSearch.js"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Calistoga&family=Lexend:wght@100..900&display=swap" rel="stylesheet">
+    </head>
+<body>
+<div class="navigation">
+            <div><a href="{{ url_for('staffHomepage') }}">Return to Home</a></div>
+        </div>
+        <div class="heading">
+            <h1>Add a New Airplane</h1>
+        </div>
+<h2 class="subheading">Please enter the required information</h2>
+<form action="/addAirplane" method="POST">
+    <input type="number" name="airplane_id" placeholder="airplane_id"/></br>
+    <input type="text" name="airline_name" placeholder="airline_name"/></br>
+    <input type="text" name="manufacturer" placeholder="manufacturer"/></br>
+    <input type="number" name="model_number" placeholder="model_number"/></br>
+    <input type="date" name="manufactur_date" placeholder="manufactur_date"/></br>
+    <input type="number" name="num_seats" placeholder="num_seats"/></br>
+    {% if error %}
+        <p class="error"><strong>Error:</strong>{{error}}</p>
+    {% endif}
+</form>
+</body>
+</html>
