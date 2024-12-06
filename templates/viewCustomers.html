@@ -11,15 +11,6 @@
 <div class="navigation">
             <div><a href="{{ url_for('staffHome') }}">Return to Home</a></div>
         </div>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul>
-                {% for category, message in messages %}
-                    <li class="alert {{ category }}">{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
         <div class="heading">
             <h1>Customers Overview </h1>
         </div>
