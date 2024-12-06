@@ -1,4 +1,4 @@
-from flask import Flask, render_template, session, request, url_for, redirect
+from flask import Flask, render_template, session, request, url_for, redirect, flash
 from datetime import datetime
 import pymysql
 
@@ -337,24 +337,24 @@ def userLogout():
 
 
 # function to determine if the user is a customer or staff - ISABELLE
+
 def determine_user_type(email, password):
     cursor = conn.cursor()
 
     cursor.execute('SELECT password FROM Customer WHERE email = %s', (email,))
     customer = cursor.fetchone()
     if customer and customer['password'] == password:
-
         return "customer"
 
     cursor.execute('SELECT password FROM Staff WHERE username = %s', (email,))
     staff = cursor.fetchone()
     if staff and staff['password'] == password:
-
         return "staff"
 
     return None
 
-# ISABELLE 
+
+# ISABELLE
 @app.route('/loginAuth', methods=['GET', 'POST'])
 def loginAuth():
     if request.method == "POST":
@@ -375,32 +375,32 @@ def loginAuth():
             return render_template('login.html', error=error_message)
     return render_template('login.html')
 
+
 # HOMEPAGE, the first page you see when you open the app ISABELLE
 @app.route('/homepage', methods=['POST', 'GET'])
 def homepage():
     if request.method == 'POST':
-        #getting information from form
+        # getting information from form
         startingPoint = request.form['startingPoint']
         destination = request.form['destination']
         tripType = request.form['tripType']
-        
+
         deptMonth = request.form['deptMonth']
         deptYear = request.form['deptYear']
         deptDay = request.form['deptDay']
 
         deptDate = f"{deptYear}-{deptMonth}-{deptDay}"
 
-        #need if statement incase of one-way
+        # need if statement incase of one-way
         if request.form.get('retMonth') and request.form.get('retDay') and request.form.get('retYear'):
             retMonth = request.form['retMonth']
             retDay = request.form['retDay']
             retYear = request.form['retYear']
-            retDate = f"{retYear}-{retMonth}-{retDay}"    
-    
-        cursor =  conn.cursor()
+            retDate = f"{retYear}-{retMonth}-{retDay}"
 
+        cursor = conn.cursor()
 
-        #one-way
+        # one-way
         query = """SELECT *
                 FROM flight 
                 WHERE flight.airport_code=%s AND flight.arrival_airport_code=%s AND DATE(flight.departure)=%s and flight.departure > NOW()"""
@@ -409,10 +409,8 @@ def homepage():
         organizedLeavingData = organizeData(leaving)
         cursor.close()
 
-
-
-        #only happens if round-trip
-        cursor =  conn.cursor()
+        # only happens if round-trip
+        cursor = conn.cursor()
         if tripType == 'round-trip':
             query2 = """SELECT * 
                        FROM flight 
@@ -421,16 +419,18 @@ def homepage():
             returning = cursor.fetchall()
             organizedReturningData = organizeData(returning)
             cursor.close()
-            combinedData =  zip(organizedLeavingData, organizedReturningData)
+            combinedData = zip(organizedLeavingData, organizedReturningData)
         else:
-            combinedData=[]
+            combinedData = []
             organizedReturningData = []
 
-        return render_template('resultsPublic.html', flightInfoLeaving=organizedLeavingData, flightInfoReturning=organizedReturningData, combinedData=combinedData, tripType=tripType)
+        return render_template('resultsPublic.html', flightInfoLeaving=organizedLeavingData,
+                               flightInfoReturning=organizedReturningData, combinedData=combinedData, tripType=tripType)
 
     return render_template('homepage.html')
 
-# ISABELLE 
+
+# ISABELLE
 @app.route('/staffHome', methods=['GET'])
 def staffHome():
     if 'role' in session and session['role'] == 'staff':
@@ -444,11 +444,12 @@ def staffHome():
         cursor2.execute("SELECT first_name FROM staff WHERE username = %s", (username,))
         user = cursor2.fetchall()
         name = user[0]['first_name']
-        return render_template('staffHome.html', flights=flights, name = name)
+        return render_template('staffHome.html', flights=flights, name=name)
     else:
         return redirect(url_for('loginAuth'))
 
-# Function to register a customer - ISABELLE 
+
+# Function to register a customer - ISABELLE
 @app.route('/customerRegister', methods=['GET', 'POST'])
 def customerRegister():
     if request.method == "POST":
@@ -474,15 +475,19 @@ def customerRegister():
 
         else:
             ins = 'INSERT INTO Customer VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)'
-            cursor.execute(ins, (username, passport_country, first_name, last_name, password, dob, address, passport_number, passport_exp_date))
+            cursor.execute(ins, (
+            username, passport_country, first_name, last_name, password, dob, address, passport_number,
+            passport_exp_date))
 
             conn.commit()
             cursor.close()
+            flash("Registration successful!", "success")
+
             return render_template("login.html")
     return render_template("customerRegister.html")
 
 
-#FUNCTION to register a staff -ISABELLE 
+# FUNCTION to register a staff -ISABELLE
 @app.route('/staffRegister', methods=['GET', 'POST'])
 def staffRegister():
     if request.method == 'POST':
@@ -510,10 +515,14 @@ def staffRegister():
             cursor.execute(ins, (username, airline_name, first_name, last_name, dob, password, phone_number, email))
             conn.commit()
             cursor.close()
+
+            flash("Registration successful!", "success")
+
             return render_template("login.html")
     return render_template('staffRegister.html')
 
-# staff logout function - ISABELLE 
+
+# staff logout function - ISABELLE
 @app.route('/staffLogout', methods=['GET', 'POST'])
 def staffLogout():
     if request.method == 'POST':
@@ -526,7 +535,8 @@ def staffLogout():
 
     return render_template('staffLogout.html')
 
-#create flight function -ISABELLE 
+
+# create flight function -ISABELLE
 @app.route('/createFlight', methods=['GET', 'POST'])
 def createFlight():
     if 'role' in session and session['role'] == 'staff':
@@ -558,10 +568,12 @@ def createFlight():
 
             else:
                 ins = 'INSERT INTO flight VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)'
-                cursor.execute(ins, (flight_num,airline_name,airplane_id,airport_code,arrival,departure,base_price, arrival_airport_code,status))
+                cursor.execute(ins, (
+                flight_num, airline_name, airplane_id, airport_code, arrival, departure, base_price,
+                arrival_airport_code, status))
                 conn.commit()
                 cursor.close()
-
+                flash("Flight created!", "success")
                 return render_template('createFlight.html')
         else:
             return render_template('createFlight.html')
@@ -572,7 +584,7 @@ def createFlight():
         return redirect(url_for('loginAuth'))
 
 
-#add airplane function - ISABELLE 
+# add airplane function - ISABELLE
 @app.route('/addAirplane', methods=['GET', 'POST'])
 def addAirplane():
     if 'role' in session and session['role'] == 'staff':
@@ -592,7 +604,7 @@ def addAirplane():
             data = cursor.fetchone()
 
             if data:
-                #there already is a plane with this id
+                # there already is a plane with this id
                 error = "This plane already exists."
                 cursor.close()
                 return render_template(addAirplane.template, error=error)
@@ -601,22 +613,25 @@ def addAirplane():
                 cursor.execute(ins, (airplane_id, airline_name, manufacturer, model_number, manufactur_date, num_seats))
                 conn.commit()
                 cursor.close()
+                flash("Airplane added!", "success")
                 return render_template("addAirplane.html")
+
         else:
             return render_template("addAirplane.html")
 
-       
-    
+
+
 
     else:
         return redirect(url_for('loginAuth'))
+
 
 # add new airport, accessed within the staffHome page - ISABELLE
 @app.route('/addAirport', methods=['GET', 'POST'])
 def addAirport():
     if 'role' in session and session['role'] == 'staff':
         if request.method == 'POST':
-        
+
             # add an airport
             airport_code = request.form['airport_code']
             airport_name = request.form['airport_name']
@@ -639,14 +654,16 @@ def addAirport():
                 cursor.execute(ins, (airport_code, airport_name, city, country, num_terminals))
                 conn.commit()
                 cursor.close()
+                flash("Airport added!", "success")
                 return render_template("addAirport.html")
         else:
             return render_template("addAirport.html")
 
-        
+
 
     else:
         return redirect(url_for('loginAuth'))
+
 
 # view ratings, accessed within the staffHome -ISABELLE
 @app.route('/viewRatings', methods=['GET'])
@@ -655,7 +672,8 @@ def viewRatings():
         # gets the ratings from the flight
         cursor = conn.cursor()
 
-        cursor.execute('SELECT ticket.rating, ticket.flight_num, ticket.comments FROM Ticket INNER JOIN Flight on Ticket.flight_num = Flight.flight_num')
+        cursor.execute(
+            'SELECT ticket.rating, ticket.flight_num, ticket.comments FROM Ticket INNER JOIN Flight on Ticket.flight_num = Flight.flight_num')
         flraco = cursor.fetchall()
         flight_data = {}
 
@@ -665,7 +683,7 @@ def viewRatings():
             comment = entry['comments']
 
             if flight_num not in flight_data:
-                flight_data[flight_num] = {'ratings' : [], 'comments' : []}
+                flight_data[flight_num] = {'ratings': [], 'comments': []}
 
             if rating is not None:
                 flight_data[flight_num]['ratings'].append(rating)
@@ -687,9 +705,6 @@ def viewRatings():
         return render_template('viewRatings.html', flight_details=flight_details)
     else:
         return redirect(url_for('loginAuth'))
-
-
-
 
 
 # scheudle maitence, accessed within the staffHome page - ISABELLE
@@ -719,6 +734,7 @@ def scheduleMaintenance():
                 cursor.execute(ins, (airplane_id, start_date_time, end_date_time))
                 conn.commit()
                 cursor.close()
+                flash("Maitenance scheduled!", "success")
                 return render_template("scheduleMaintenance.html")
         else:
             return render_template("scheduleMaintenance.html")
@@ -728,6 +744,7 @@ def scheduleMaintenance():
 
     else:
         return redirect(url_for('loginAuth'))
+
 
 # customers, accessed within the staffHome page - ISABELLE (NOT DONE!!!!!!)
 @app.route('/viewCustomers', methods=['GET'])
@@ -757,11 +774,11 @@ def viewCustomers():
 
         cursor.close()
 
-        return render_template("viewCustomers.html", frequent_customer=frequent_customer, all_customers=all_customers, selected_customer=selected_customer, customer_flights=customer_flights)
+
+        return render_template("viewCustomers.html", frequent_customer=frequent_customer, all_customers=all_customers,
+                               selected_customer=selected_customer, customer_flights=customer_flights)
     else:
         return redirect(url_for('loginAuth'))
-
-
 
 
 # views the monthly and yearly revenue- ISABELLE
@@ -793,7 +810,6 @@ def viewRevenue():
         return render_template("viewRevenue.html", revenue_month=revenue_month, revenue_year=revenue_year)
     else:
         return redirect(url_for('loginAuth'))
-
 
 
 
