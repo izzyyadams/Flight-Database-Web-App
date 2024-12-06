@@ -8,17 +8,21 @@
 
     </head>
     <body>
+
         <div class="navigation">
             <div><a href="{{ url_for('userHome') }}">Home</a></div>
             <div><a href="{{ url_for('tripSearch') }}">Trip Search</a></div>
             <div><a href="{{ url_for('spending') }}">Your Spending</a></div>
             <div><a href="{{ url_for('userLogout') }}">Logout</a></div>
         </div>
+
         <div class="heading">
             <h1>Purchase Ticket</h1>
         </div>
+
+        <!--form for ticket Purchase-->
         <div class="purchaseForm">
-            <!--form for ticket Purchase-->
+            <!--POSTS inputs to actualTicketPurchase in flask-->
             <form id="purchaseTicketForm" action="/actualTicketPurchase" method="POST">
                 <div class="purchaseSection email">
                         <label for="purchaseEmail">Email:</label>
@@ -71,6 +75,10 @@
                     <label for="purchaseCardExp">Card Expiration Date:</label>
                     <input type="text" id="purchaseCardExp" name="purchaseCardExp" placeholder="00/00">
                 </div>
+
+                <!--Information send from flight search-->
+                <!--PurchaseInfoNum is the flight number of the ticket being purchased-->
+                <!--The 1 and 2 are due to possible roundtrip purchases-->
                 <input type="hidden" name="purchaseInfoNum1" value="{{ purchaseInfoNum1 }}">
                 <input type="hidden" name="purchaseInfoPrice1" value="{{ purchaseInfoPrice1 }}">
                 <input type="hidden" name="purchaseInfoNum2" value="{{ purchaseInfoNum2 }}">

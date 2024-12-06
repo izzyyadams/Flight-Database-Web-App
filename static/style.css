@@ -1,3 +1,4 @@
+/*Styling that applies to all pages*/
 body{
     display: flex; 
     flex-direction: column;
@@ -9,7 +10,6 @@ body{
     padding: 0;
 }
 
-/*Heading and Subheading on all pages styling*/
 .heading, .subheading {
     font-family: "Calistoga", serif;
 
@@ -27,14 +27,10 @@ body{
     font-size: 2vw;
 }
 
-
-
 p {
     font-family: "Lexend", sans-serif;
 }
 
-
-/*Button styling*/
 button {
     background-color: #fb813e;
     border: none;
@@ -43,13 +39,14 @@ button {
     padding: 10px;
     font-family: "Lexend", sans-serif;
     font-size: 1.2vw;
+    margin-top: 20px;
 }
 
 button:hover {
     background-color: #E26421;
 }
 
-/*Navigation Styling*/
+/*Navigation Bar Styling*/
 .navigation {
     display: flex;
     flex-direction: row;
@@ -61,6 +58,7 @@ button:hover {
     height: 5vh;
 }
 
+/*Tabs of navigation bar styling*/
 .navigation a {
     display: inline-block;
     text-decoration: none; 
@@ -71,16 +69,26 @@ button:hover {
     margin-left: 30px;
 }
 
+/*Link doesn't change color when clicked*/
 .navigation a:visited {
     color: inherit; 
 }
 
+/*Words get bigger when mouse is over them*/
 .navigation a:hover {
     text-decoration: none; 
     transform: scale(1.2);
 }
 
+/*End styling for every page*/
 
+
+
+
+
+
+
+/*Styling for flight in results.html and userHome.html (The box that information for each flight is in)*/
 /*Upcoming trips styling*/
 .flights {
     display: flex;
@@ -93,6 +101,7 @@ button:hover {
     margin-top: 50px;
 }
 
+/*separate groups of information in flight data organization*/
 .sectionFlight {
     display: flex;
     flex-direction: row;
@@ -101,18 +110,24 @@ button:hover {
     font-size: 1.2vw;
 }
 
-
 .line2 {
     font-size: 1.6vw;
 }
-
 
 .line4, .line5, .line6, .rating {
     justify-content: center;
 
 }
+/*End styling for flight data organization*/
+
+
+
+
+
+
 
 /*Styling for flight search*/
+/*Styling for form box of flight search*/
 .flightForm{
     border: 4px solid #468bca;
     border-radius: 10px;
@@ -126,7 +141,6 @@ button:hover {
     font-size: 1.2vw;
     width: 50vw;
     background-color: #f2efea;
-
 }
 
 .formSection {
@@ -142,8 +156,6 @@ button:hover {
     justify-content: center;
 }
 
-
-
 .locations p{
     margin-left: 20px;
     margin-right: 20px;
@@ -154,7 +166,15 @@ button:hover {
     padding-left: 200px;
     padding-right: 200px;
 }
+/*End flight search styling*/
 
+
+
+
+
+
+
+/*User spending stylying*/
 .yearSpent, .userSpent {
     display: flex;
     flex-direction: row;
@@ -163,23 +183,24 @@ button:hover {
 
 }
 
+/*Hides user input spending results before they search*/
 #userSpentJS {
     display: none;
 }
 
-.lastYear, .lastSixMonths, .userInputYear, .userInputMonth {
+/*Each of the sections of the spending results take up 50% width of the screen*/
+.spendingSection {
     width: 50%;
 
 }
 
-
-
-
+/*Amount spent styling*/
 .total {
     font-size: 2vw;
 }
 
-.date {
+/*Styling for form to enter a date to check spending since*/
+.dateForm {
     border: 5px solid #fdc21e;
     border-radius: 10px;
     padding: 10px 30px 10px 30px ;
@@ -187,6 +208,7 @@ button:hover {
     font-family: "Lexend", sans-serif;
 }
 
+/*Styling for tables in user spending*/
 table {
     width: 70%;
     margin: auto;
@@ -208,6 +230,4 @@ tr:hover {
     background-color: #f1f1f1;
 }
 
-.submitButton {
-    margin-top: 20px;
-}
+/*End user spending styling*/

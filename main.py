@@ -13,6 +13,9 @@ app = Flask(__name__)
 
 app.secret_key = 'isabelle'
 
+
+
+
 #function to organize data from query to use for display IZZY
 def organizeData(results):
     flightInfoList= []
@@ -37,7 +40,32 @@ def organizeData(results):
             "status": flight['Status'],
             "flightNum": flight['flight_num']
         }
-        flightInfoList.append(flightInfo)
+
+        #calculate price
+        cursor = conn.cursor()
+        query = """SELECT COUNT(Ticket.ticket_id) as tickets
+                FROM flight JOIN ticket ON flight.flight_num = ticket.flight_num
+                WHERE flight.flight_num = %s
+                GROUP BY flight.flight_num"""
+        query2 = """SELECT Airplane.num_seats as capacity
+                FROM flight JOIN airplane ON flight.airplane_id = airplane.airplane_id
+                WHERE flight.flight_num = %s
+                GROUP BY flight.flight_num"""
+        cursor.execute(query, (flightInfo['flightNum'],))
+        ticketResult = cursor.fetchall()
+        if ticketResult:
+            tickets = ticketResult[0]['tickets']
+        else:
+            tickets = 0
+        cursor.execute(query2, (flightInfo['flightNum'],))
+        capacityResult = cursor.fetchall()
+        if capacityResult:
+            capacity = capacityResult[0]['capacity']
+        cursor.close()
+        if tickets > 0.8 * capacity:
+            flightInfo['basePrice'] = flightInfo['basePrice']  * 1.25
+        if tickets < capacity:
+            flightInfoList.append(flightInfo)
 
 
     return flightInfoList
@@ -95,9 +123,9 @@ def tripSearch():
 
 
         #one-way
-        query = """SELECT * 
+        query = """SELECT *
                 FROM flight 
-                WHERE airport_code=%s AND arrival_airport_code=%s AND DATE(departure)=%s"""
+                WHERE flight.airport_code=%s AND flight.arrival_airport_code=%s AND DATE(flight.departure)=%s and flight.departure > NOW()"""
         cursor.execute(query, (startingPoint, destination, deptDate))
         leaving = cursor.fetchall()
         organizedLeavingData = organizeData(leaving)
@@ -130,6 +158,7 @@ def tripSearch():
 
 @app.route('/cancelTicket', methods=['POST'])
 def cancelTicket():
+ 
     email = session['user_id']
     flightNum = request.form['cancelTicket']
     cursor = conn.cursor()
@@ -145,12 +174,11 @@ def cancelTicket():
 
 #function to actually purchase the ticket IZZY
 @app.route('/actualTicketPurchase', methods=['POST'])
-def actualTicketCancel():
+def actualTicketPurchasel():
     purchaseDOBMonth = request.form['purchaseDOBMonth']
     purchaseDOBDay = request.form['purchaseDOBDay']
     purchaseDOBYear = request.form['purchaseDOBYear']
     purchaseDOBDate = f"{purchaseDOBYear}-{purchaseDOBMonth}-{purchaseDOBDay}"  
-    
     flight_num1 = request.form['purchaseInfoNum1']
     calc_price1 = request.form['purchaseInfoPrice1']
     purchaseEmail =request.form['purchaseEmail']
@@ -159,18 +187,11 @@ def actualTicketCancel():
     rating = None
     comments = None
     purchaseCardNum = request.form['purchaseCardNum']
-
-
-
-    
-
     cursor = conn.cursor()
     query = """SELECT MAX(ticket_id), MAX(purchase_id), NOW() FROM purchase"""
-
     cursor.execute(query)
     queryInfo = cursor.fetchall()
     cursor.close()
-
     ticket_id = queryInfo[0]['MAX(ticket_id)'] + 1
     purchase_id = queryInfo[0]['MAX(purchase_id)'] + 1
     now = queryInfo[0]['NOW()']
@@ -206,7 +227,6 @@ def purchaseTicketRound():
     purchaseTicketPricee1 = request.form['purchaseTicketPrice1']
     purchaseTicketFlightID2 = request.form['purchaseTicketNum2']
     purchaseTicketPricee2 = request.form['purchaseTicketPrice2']
-    print(purchaseTicketFlightID2)
 
     return render_template('purchaseTicket.html', purchaseInfoNum1=purchaseTicketFlightID1, purchaseInfoPrice1=purchaseTicketPricee1, purchaseInfoNum2=purchaseTicketFlightID2, purchaseInfoPrice2=purchaseTicketPricee2)
 
@@ -257,7 +277,6 @@ def rateAndComment():
     ticket_id = request.form['ticket_ID']
     rating = request.form['rating']
     comment = request.form['comment']
-    print(email, ticket_id, rating, comment)
     cursor = conn.cursor()
     query = """UPDATE Ticket 
                 SET rating=%s, comments=%s
