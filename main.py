@@ -689,10 +689,35 @@ def scheduleMaintenance():
 @app.route('/viewCustomers', methods=['GET'])
 def viewCustomers():
     if 'role' in session and session['role'] == 'staff':
-        # get and display customers
-        return render_template("viewCustomers.html")
+        cursor = conn.cursor()
+
+        # Query to get the most frequent customer in the last year
+        query_frequent_customer = "SELECT Ticket.customer_email, COUNT(*) AS flight_count FROM Ticket INNER JOIN Flight ON Ticket.flight_num = Flight.flight_num WHERE Flight.departure > DATE_SUB(NOW(), INTERVAL 1 YEAR) GROUP BY Ticket.customer_email ORDER BY flight_count DESC LIMIT 1"
+        cursor.execute(query_frequent_customer)
+        frequent_customer = cursor.fetchone()
+
+        # Query to get all customers
+        query_all_customers = "SELECT DISTINCT customer_email FROM Ticket"
+        cursor.execute(query_all_customers)
+        all_customers = cursor.fetchall()
+
+        customer_flights = []
+        selected_customer = None
+
+        # If the user submits a POST request to view flights for a specific customer
+        if request.method == 'POST':
+            selected_customer = request.form['customer_email']
+            query_customer_flights = "SELECT Flight.flight_num, Flight.departure, Flight.arrival, Flight.airport_code, Flight.arrival_airport_code FROM Ticket INNER JOIN Flight ON Ticket.flight_num = Flight.flight_num WHERE Ticket.customer_email = %s"
+            cursor.execute(query_customer_flights, (selected_customer,))
+            customer_flights = cursor.fetchall()
+
+        cursor.close()
+
+        return render_template("viewCustomers.html", frequent_customer=frequent_customer, all_customers=all_customers, selected_customer=selected_customer, customer_flights=customer_flights)
     else:
         return redirect(url_for('loginAuth'))
+
+
 
 
 # views the monthly and yearly revenue- ISABELLE
