@@ -14,6 +14,15 @@
         <div class="heading">
             <h1>Schedule Maintenance</h1>
         </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+                {% for category, message in messages %}
+                    <li class="alert {{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
 <h2 class="subheading">Please enter the required information</h2>
 <form action="/scheduleMaintenance" method="POST">
     <input type="number" name="airplane_id" placeholder="airplane_id"/></br>
