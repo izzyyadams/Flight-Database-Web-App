@@ -324,7 +324,7 @@ def userLogout():
         yesNo = request.form['yesNo']
         if yesNo == 'logout':
             session.clear()
-            return redirect(url_for('loginAuth'))
+            return redirect(url_for('homepage'))
         else:
             return redirect(url_for('userHome'))
 
@@ -346,9 +346,9 @@ def determine_user_type(email, password):
 
         return "customer"
 
-    cursor.execute('SELECT password FROM Staff WHERE email = %s', (email,))
+    cursor.execute('SELECT password FROM Staff WHERE username = %s', (email,))
     staff = cursor.fetchone()
-    if staff and customer['password' == password]:
+    if staff and staff['password'] == password:
 
         return "staff"
 
@@ -376,48 +376,57 @@ def loginAuth():
     return render_template('login.html')
 
 # HOMEPAGE, the first page you see when you open the app ISABELLE
-@app.route('/homepage')
+@app.route('/homepage', methods=['POST', 'GET'])
 def homepage():
     if request.method == 'POST':
-        # getting information from form
+        #getting information from form
         startingPoint = request.form['startingPoint']
         destination = request.form['destination']
         tripType = request.form['tripType']
-
+        
         deptMonth = request.form['deptMonth']
         deptYear = request.form['deptYear']
         deptDay = request.form['deptDay']
 
         deptDate = f"{deptYear}-{deptMonth}-{deptDay}"
 
-        # need if statement incase of one-way
-        return_date_str = None
+        #need if statement incase of one-way
         if request.form.get('retMonth') and request.form.get('retDay') and request.form.get('retYear'):
             retMonth = request.form['retMonth']
             retDay = request.form['retDay']
             retYear = request.form['retYear']
-            retDate = f"{retYear}-{retMonth}-{retDay}"
+            retDate = f"{retYear}-{retMonth}-{retDay}"    
+    
+        cursor =  conn.cursor()
 
-        cursor = conn.cursor()
+
+        #one-way
+        query = """SELECT *
+                FROM flight 
+                WHERE flight.airport_code=%s AND flight.arrival_airport_code=%s AND DATE(flight.departure)=%s and flight.departure > NOW()"""
+        cursor.execute(query, (startingPoint, destination, deptDate))
+        leaving = cursor.fetchall()
+        organizedLeavingData = organizeData(leaving)
+        cursor.close()
 
 
-        # round trip query
+
+        #only happens if round-trip
+        cursor =  conn.cursor()
         if tripType == 'round-trip':
-            query = """SELECT * 
-                           FROM flight 
-                           WHERE airport_code=%s AND arrival_airport_code=%s AND departure=%s AND arrival=%s"""
-            cursor.execute(query, (startingPoint, destination, deptDate, retDate))
-
-        # one way query
+            query2 = """SELECT * 
+                       FROM flight 
+                       WHERE airport_code=%s AND arrival_airport_code=%s AND DATE(departure)=%s"""
+            cursor.execute(query2, (destination, startingPoint, retDate))
+            returning = cursor.fetchall()
+            organizedReturningData = organizeData(returning)
+            cursor.close()
+            combinedData =  zip(organizedLeavingData, organizedReturningData)
         else:
-            query = """SELECT * 
-                           FROM flight 
-                           WHERE airport_code=%s AND arrival_airport_code=%s AND DATE(departure)=%s"""
-            cursor.execute(query, (startingPoint, destination, deptDate))
+            combinedData=[]
+            organizedReturningData = []
 
-        results = cursor.fetchall()
-        results['ticket_id'] = []
-        return render_template('results.html', results=results)
+        return render_template('resultsPublic.html', flightInfoLeaving=organizedLeavingData, flightInfoReturning=organizedReturningData, combinedData=combinedData, tripType=tripType)
 
     return render_template('homepage.html')
 
@@ -427,14 +436,14 @@ def staffHome():
     if 'role' in session and session['role'] == 'staff':
         username = session['user']
         cursor = conn.cursor()
-        query = "SELECT * FROM flight WHERE (departure > NOW() and departure < current_date + INTERVAL '1 MONTH'"
+        query = "SELECT * FROM flight WHERE departure > NOW() and departure < NOW() + INTERVAL 1 MONTH"
         cursor.execute(query)
         flights = cursor.fetchall()
-
+        print(flights)
         cursor2 = conn.cursor()
         cursor2.execute("SELECT first_name FROM staff WHERE username = %s", (username,))
-        user = cursor.fetchone()
-        name = user['first_name']
+        user = cursor2.fetchall()
+        name = user[0]['first_name']
         return render_template('staffHome.html', flights=flights, name = name)
     else:
         return redirect(url_for('loginAuth'))
@@ -442,64 +451,67 @@ def staffHome():
 # Function to register a customer - ISABELLE 
 @app.route('/customerRegister', methods=['GET', 'POST'])
 def customerRegister():
-    username = request.form['email']
-    passport_country = request.form['passport_country']
-    first_name = request.form['first_name']
-    last_name = request.form['last_name']
-    password = request.form['password']
-    dob = request.form['dob']
-    address = request.form['address']
-    passport_number = request.form['passport_number']
-    passport_exp_date = request.form['passport_exp_date']
+    if request.method == "POST":
+        username = request.form['email']
+        passport_country = request.form['passport_country']
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+        password = request.form['password']
+        dob = request.form['dob']
+        address = request.form['address']
+        passport_number = request.form['passport_number']
+        passport_exp_date = request.form['passport_exp_date']
 
-    cursor = conn.cursor()
-    query = 'Select * FROM Customer WHERE username = %'
-    cursor.execute(query, (username,))
-    data = cursor.fetchone()
+        cursor = conn.cursor()
+        query = 'Select * FROM Customer WHERE email = %s'
+        cursor.execute(query, (username,))
+        data = cursor.fetchone()
 
-    if data:
-        error = "This customer already exists."
-        cursor.close()
-        return render_template("customerRegister.html", error=error)
+        if data:
+            error = "This customer already exists."
+            cursor.close()
+            return render_template("customerRegister.html", error=error)
 
-    else:
-        ins = 'INSERT INTO Customer VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)'
-        cursor.execute(ins, (username,passport_country, first_name, last_name,password, address, passport_number, dob, address, passport_exp_date))
+        else:
+            ins = 'INSERT INTO Customer VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)'
+            cursor.execute(ins, (username, passport_country, first_name, last_name, password, dob, address, passport_number, passport_exp_date))
 
-        conn.commit()
-        cursor.close()
-        return render_template("loginAuth.html")
+            conn.commit()
+            cursor.close()
+            return render_template("login.html")
+    return render_template("customerRegister.html")
 
 
 #FUNCTION to register a staff -ISABELLE 
 @app.route('/staffRegister', methods=['GET', 'POST'])
 def staffRegister():
-    username = request.form['username']
-    airline_name = request.form['airline_name']
-    first_name = request.form['first_name']
-    last_name = request.form['last_name']
-    dob = request.form['dob']
-    password = request.form['password']
-    phone_number = request.form['phone_number']
-    email = request.form['email']
+    if request.method == 'POST':
+        username = request.form['username']
+        airline_name = request.form['airline_name']
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+        dob = request.form['dob']
+        password = request.form['password']
+        phone_number = request.form['phone_number']
+        email = request.form['email']
 
-    cursor = conn.cursor()
-    query = 'SELECT * FROM Staff WHERE username = %'
-    cursor.execute(query, (username,))
-    data = cursor.fetchone()
+        cursor = conn.cursor()
+        query = 'SELECT * FROM Staff WHERE username = %s'
+        cursor.execute(query, (username,))
+        data = cursor.fetchone()
 
-    if data:
-        error = "This staff already exists."
-        cursor.close()
-        return render_template("staffRegister.html", error=error)
+        if data:
+            error = "This staff already exists."
+            cursor.close()
+            return render_template("staffRegister.html", error=error)
 
-    else:
-        ins = "INSERT INTO Staff VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-        cursor.execute(ins, (username, airline_name, first_name, last_name, dob, password, phone_number, email))
-        conn.commit()
-        cursor.close()
-        return render_template("loginAuth.html")
-
+        else:
+            ins = "INSERT INTO Staff VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+            cursor.execute(ins, (username, airline_name, first_name, last_name, dob, password, phone_number, email))
+            conn.commit()
+            cursor.close()
+            return render_template("login.html")
+    return render_template('staffRegister.html')
 
 # staff logout function - ISABELLE 
 @app.route('/staffLogout', methods=['GET', 'POST'])
@@ -508,7 +520,7 @@ def staffLogout():
         yesNo = request.form['yesNo']
         if yesNo == 'logout':
             session.clear()
-            return redirect(url_for('loginAuth'))
+            return redirect(url_for('homepage'))
         else:
             return redirect(url_for('staffHome'))
 
@@ -518,7 +530,9 @@ def staffLogout():
 @app.route('/createFlight', methods=['GET', 'POST'])
 def createFlight():
     if 'role' in session and session['role'] == 'staff':
+
         if request.method == 'POST':
+
             # create a new flight
             flight_num = request.form['flight_num']
             airline_name = request.form['airline_name']
@@ -531,7 +545,7 @@ def createFlight():
             status = request.form['status']
 
             cursor = conn.cursor()
-            query = 'SELECT * FROM flight WHERE flight_num = %'
+            query = 'SELECT * FROM flight WHERE flight_num = %s'
             cursor.execute(query, (flight_num,))
 
             data = cursor.fetchone()
@@ -549,14 +563,17 @@ def createFlight():
                 cursor.close()
 
                 return render_template('createFlight.html')
+        else:
+            return render_template('createFlight.html')
 
-        return redirect(url_for('staffHome'))
+
 
     else:
         return redirect(url_for('loginAuth'))
 
 
 #add airplane function - ISABELLE 
+@app.route('/addAirplane', methods=['GET', 'POST'])
 def addAirplane():
     if 'role' in session and session['role'] == 'staff':
         if request.method == 'POST':
@@ -565,11 +582,11 @@ def addAirplane():
             airline_name = request.form['airline_name']
             manufacturer = request.form['manufacturer']
             model_number = request.form['model_number']
-            manufactur_date = request.form['manufacturer_date']
+            manufactur_date = request.form['manufactur_date']
             num_seats = request.form['num_seats']
 
             cursor = conn.cursor()
-            query = 'SELECT * FROM Airplane WHERE flight_num = %'
+            query = 'SELECT * FROM Airplane WHERE airplane_id = %s'
             cursor.execute(query, (airplane_id,))
 
             data = cursor.fetchone()
@@ -585,8 +602,11 @@ def addAirplane():
                 conn.commit()
                 cursor.close()
                 return render_template("addAirplane.html")
+        else:
+            return render_template("addAirplane.html")
 
-        return redirect(url_for('staffHome'))
+       
+    
 
     else:
         return redirect(url_for('loginAuth'))
@@ -596,6 +616,7 @@ def addAirplane():
 def addAirport():
     if 'role' in session and session['role'] == 'staff':
         if request.method == 'POST':
+        
             # add an airport
             airport_code = request.form['airport_code']
             airport_name = request.form['airport_name']
@@ -604,7 +625,7 @@ def addAirport():
             num_terminals = request.form['num_terminals']
 
             cursor = conn.cursor()
-            query = 'SELECT * FROM Airport WHERE airport_code = %'
+            query = 'SELECT * FROM Airport WHERE airport_code = %s'
             cursor.execute(query, (airport_code,))
             data = cursor.fetchone()
 
@@ -619,9 +640,10 @@ def addAirport():
                 conn.commit()
                 cursor.close()
                 return render_template("addAirport.html")
+        else:
+            return render_template("addAirport.html")
 
-
-        return redirect(url_for('staffHome'))
+        
 
     else:
         return redirect(url_for('loginAuth'))
@@ -633,14 +655,14 @@ def viewRatings():
         # gets the ratings from the flight
         cursor = conn.cursor()
 
-        cursor.execute('SELECT ticket.rating, ticket.flight_num, ticket.comment FROM Ticket INNER JOIN Flight on Ticket.flight_num = Flight.flight_num')
+        cursor.execute('SELECT ticket.rating, ticket.flight_num, ticket.comments FROM Ticket INNER JOIN Flight on Ticket.flight_num = Flight.flight_num')
         flraco = cursor.fetchall()
         flight_data = {}
 
         for entry in flraco:
             flight_num = entry['flight_num']
             rating = entry['rating']
-            comment = entry['comment']
+            comment = entry['comments']
 
             if flight_num not in flight_data:
                 flight_data[flight_num] = {'ratings' : [], 'comments' : []}
@@ -675,13 +697,14 @@ def viewRatings():
 def scheduleMaintenance():
     if 'role' in session and session['role'] == 'staff':
         if request.method == 'POST':
+
             # logic to schedule maitence
             airplane_id = request.form['airplane_id']
             start_date_time = request.form['start_date_time']
             end_date_time = request.form['end_date_time']
 
             cursor = conn.cursor()
-            query = 'SELECT * FROM Maintenance WHERE flight_num = %'
+            query = 'SELECT * FROM Maitenance WHERE airplane_id = %s'
             cursor.execute(query, (airplane_id,))
 
             data = cursor.fetchone()
@@ -692,14 +715,16 @@ def scheduleMaintenance():
                 return render_template("scheduleMaintenance.html", error=error)
 
             else:
-                ins = 'INSERT INTO Maintenance VALUES (%s, %s, %s)'
+                ins = 'INSERT INTO Maitenance VALUES (%s, %s, %s)'
                 cursor.execute(ins, (airplane_id, start_date_time, end_date_time))
                 conn.commit()
                 cursor.close()
                 return render_template("scheduleMaintenance.html")
+        else:
+            return render_template("scheduleMaintenance.html")
 
 
-        return redirect(url_for('staffHome'))
+
 
     else:
         return redirect(url_for('loginAuth'))
@@ -711,12 +736,12 @@ def viewCustomers():
         cursor = conn.cursor()
 
         # Query to get the most frequent customer in the last year
-        query_frequent_customer = "SELECT Ticket.customer_email, COUNT(*) AS flight_count FROM Ticket INNER JOIN Flight ON Ticket.flight_num = Flight.flight_num WHERE Flight.departure > DATE_SUB(NOW(), INTERVAL 1 YEAR) GROUP BY Ticket.customer_email ORDER BY flight_count DESC LIMIT 1"
+        query_frequent_customer = "SELECT Ticket.email, COUNT(*) AS flight_count FROM Ticket INNER JOIN Flight ON Ticket.flight_num = Flight.flight_num WHERE Flight.departure > DATE_SUB(NOW(), INTERVAL 1 YEAR) GROUP BY Ticket.email ORDER BY flight_count DESC LIMIT 1"
         cursor.execute(query_frequent_customer)
         frequent_customer = cursor.fetchone()
 
         # Query to get all customers
-        query_all_customers = "SELECT DISTINCT customer_email FROM Ticket"
+        query_all_customers = "SELECT DISTINCT email FROM Ticket"
         cursor.execute(query_all_customers)
         all_customers = cursor.fetchall()
 
@@ -725,8 +750,8 @@ def viewCustomers():
 
         # If the user submits a POST request to view flights for a specific customer
         if request.method == 'POST':
-            selected_customer = request.form['customer_email']
-            query_customer_flights = "SELECT Flight.flight_num, Flight.departure, Flight.arrival, Flight.airport_code, Flight.arrival_airport_code FROM Ticket INNER JOIN Flight ON Ticket.flight_num = Flight.flight_num WHERE Ticket.customer_email = %s"
+            selected_customer = request.form['email']
+            query_customer_flights = "SELECT Flight.flight_num, Flight.departure, Flight.arrival, Flight.airport_code, Flight.arrival_airport_code FROM Ticket INNER JOIN Flight ON Ticket.flight_num = Flight.flight_num WHERE Ticket.email = %s"
             cursor.execute(query_customer_flights, (selected_customer,))
             customer_flights = cursor.fetchall()
 

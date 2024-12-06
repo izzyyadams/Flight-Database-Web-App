@@ -9,55 +9,61 @@
     </head>
 
     <body>
+
         <header>
             <div class="navigation">
-            <div><a href="{{ url_for('logout') }}">Logout</a></div>
+            <div><a href="{{ url_for('staffLogout') }}">Logout</a></div>
             </div>
         <div class="heading">
             <h1>Welcome {{ name }}!</h1>
         </div>
         </header>
-
-        <main>
-            <section>
-                <div class="upcomingTrips">
-                <h2 class="subheading">Flights in the next 30 days</h2>
+        
+            <main>
+                <div class="bigSection">
+                    <div>
+                        <section>
+                            <div class="upcomingTrips">
+                            <h2 class="subheading">Flights in the next 30 days</h2>
+                            </div>
+                            <table>
+                                <thead>
+                                <tr>
+                                    <th>Flight Number</th>
+                                    <th>Departure Airport</th>
+                                    <th>Arrival Airport</th>
+                                    <th>Departure Time</th>
+                                    <th>Arrival Time</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    {% for flight in flights %}
+                                    <tr>
+                                        <td>{{ flight['flight_num'] }}</td>
+                                        <td>{{ flight['airport_code'] }}</td>
+                                        <td>{{ flight['arrival_airport_code'] }}</td>
+                                        <td>{{ flight['departure'] }}</td>
+                                        <td>{{ flight['arrival'] }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </section>
+                    </div>
+                <div class= "actions">
+                    <section>
+                        <h2 class="subheading">Actions</h2>
+                        <ul>
+                            <li><a href="{{ url_for('createFlight') }}">Create New Flight </a></li>
+                            <li><a href="{{ url_for('addAirplane') }}">Add Airplane</a></li>
+                            <li><a href="{{ url_for('addAirport') }}">Add Airport</a></li>
+                            <li><a href="{{ url_for('viewRatings') }}">View Ratings</a></li>
+                            <li><a href="{{ url_for('scheduleMaintenance') }}">Schedule Maintenance</a></li>
+                            <li><a href="{{ url_for('viewCustomers') }}">View Customers</a></li>
+                        </ul>
+                    </section>
                 </div>
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Flight Number</th>
-                        <th>Departure Airport</th>
-                        <th>Arrival Airport</th>
-                        <th>Departure Time</th>
-                        <th>Arrival Time</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                        {% for flight in flights %}
-                        <tr>
-                            <td>{{ flight['flight_number'] }}</td>
-                            <td>{{ flight['departure_airport'] }}</td>
-                            <td>{{ flight['arrival_airport'] }}</td>
-                            <td>{{ flight['departure'] }}</td>
-                            <td>{{ flight['arrival'] }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </section>
-
-            <section>
-                <h2>Actions</h2>
-                <ul>
-                    <li><a href="{{ url_for('createFlight') }}">Create New Flight </a></li>
-                    <li><a href="{{ url_for('addAirplane') }}">Add Airplane</a></li>
-                    <li><a href="{{ url_for('addAirport') }}">Add Airport</a></li>
-                    <li><a href="{{ url_for('viewRatings') }}">View Ratings</a></li>
-                    <li><a href="{{ url_for('scheduleMaintenance') }}">Schedule Maintenance</a></li>
-                    <li><a href="{{ url_for('viewCustomers') }}">View Customers</a></li>
-                </ul>
-            </section>
+            </div>
         </main>
     </body>
 </html>

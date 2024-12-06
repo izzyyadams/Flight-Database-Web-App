@@ -17,7 +17,7 @@
 <h2 class="subheading">Please enter the required information</h2>
 
 <form action="/customerRegister" method ="POST">
-  <input type="text" name="username" placeholder="username"/></br>
+  <input type="text" name="email" placeholder="email"/></br>
   <input type="text" name="passport_country" placeholder="passport_country"/></br>
   <input type="text" name="first_name" placeholder="first_name"/></br>
   <input type="text" name="last_name" placeholder="last_name"/></br>
@@ -26,9 +26,10 @@
   <input type="text" name="address" placeholder="address"/></br>
   <input type="number" name="passport_number" placeholder="passport_number"/></br>
   <input type="date" name="passport_exp_date" placeholder="passport_exp_date"/>
+  <input type="submit" value= customerRegister />
   {% if error %}
     <p class="error"><strong>Error:</strong>{{error}}</p>
-  {% endif}
+  {% endif %}
 </form>
 
 </body>

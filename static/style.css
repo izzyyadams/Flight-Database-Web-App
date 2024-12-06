@@ -231,3 +231,9 @@ tr:hover {
 }
 
 /*End user spending styling*/
+
+.bigSection {
+    display: flex;
+    flex-direction: row;
+}
+

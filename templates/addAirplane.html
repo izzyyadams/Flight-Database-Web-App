@@ -9,7 +9,7 @@
     </head>
 <body>
 <div class="navigation">
-            <div><a href="{{ url_for('staffHomepage') }}">Return to Home</a></div>
+            <div><a href="{{ url_for('staffHome') }}">Return to Home</a></div>
         </div>
         <div class="heading">
             <h1>Add a New Airplane</h1>
@@ -22,9 +22,10 @@
     <input type="number" name="model_number" placeholder="model_number"/></br>
     <input type="date" name="manufactur_date" placeholder="manufactur_date"/></br>
     <input type="number" name="num_seats" placeholder="num_seats"/></br>
+    <input type="submit" value= addAirplane />
     {% if error %}
         <p class="error"><strong>Error:</strong>{{error}}</p>
-    {% endif}
+    {% endif %}
 </form>
 </body>
 </html>

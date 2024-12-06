@@ -9,7 +9,7 @@
     </head>
 <body>
 <div class="navigation">
-            <div><a href="{{ url_for('staffHomepage') }}">Return to Home</a></div>
+            <div><a href="{{ url_for('staffHome') }}">Return to Home</a></div>
         </div>
         <div class="heading">
             <h1>Add a New Flight</h1>
@@ -17,7 +17,7 @@
 <h2 class="subheading">Please enter the required information</h2>
 <form action="/createFlight" method="POST">
     <input type="number" name="flight_num" placeholder="flight_num"/></br>
-    <input type="text" name="airplane_name" placeholder="airplane_name"/></br>
+    <input type="text" name="airline_name" placeholder="airline_name"/></br>
     <input type="number" name="airplane_id" placeholder="airplane_id"/></br>
     <input type="text" name="airport_code" placeholder="airport_code"/></br>
     <input type="datetime-local" name="arrival" placeholder="arrival"/></br>
@@ -25,9 +25,11 @@
     <input type="text" name="base_price" placeholder="base_price"/></br>
     <input type="text" name="arrival_airport_code" placeholder="arrival_airport_code"/></br>
     <input type="text" name="status" placeholder="status"/></br>
+    <input type="submit" value= createFlight />
+    
     {% if error %}
         <p class="error"><strong>Error:</strong>{{error}}</p>
-    {% endif}
+    {% endif %}
 </form>
 </body>
 </html>
