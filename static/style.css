@@ -237,3 +237,37 @@ tr:hover {
     flex-direction: row;
 }
 
+
+/* styling for the pop up confirmation, called with flash function */
+.flash-message {
+    background-color: #d4edda;  /* Green background for success */
+    color: #155724;             /* Green text for success */
+    padding: 15px 30px;         /* Add padding for the rounded box */
+    border-radius: 20px;        /* Rounded corners */
+    margin-top: 20px;
+    text-align: center;
+    width: 60%;
+    max-width: 400px;           /* Set a maximum width */
+    position: fixed;            /* Fixed position so it stays in place */
+    top: 20px;                  /* Space from the top */
+    left: 50%;                  /* Center it horizontally */
+    transform: translateX(-50%);/* Ensure it's centered */
+    z-index: 9999;              /* Make sure it stays on top */
+    opacity: 0;                 /* Initially hidden */
+    animation: fadeIn 3s ease-out forwards; /* Animation to make it fade in */
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        top: 0;
+    }
+    50% {
+        opacity: 1;
+        top: 20px;
+    }
+    100% {
+        opacity: 1;
+        top: 20px;
+    }
+}
