@@ -847,6 +847,32 @@ def viewRevenue():
         return redirect(url_for('loginAuth'))
 
 
+@app.route('/changeFlightStatus', methods=['GET', 'POST'])
+def changeFlightStatus():
+    if 'role' in session and session['role'] == 'staff':
+        if request.method == 'POST':
+            status = request.form['status']
+            airplane_id = request.form['airplane_id']
+
+            cursor = conn.cursor()
+            query = """UPDATE Flight SET status = %s WHERE flight_id = %s"""
+            cursor.execute(query, (status, airplane_id))
+            conn.commit()
+
+            cursor.close()
+
+            # Flash a success message
+            flash("Flight status updated successfully!", category="success")
+
+            return redirect(url_for('changeFlightStatus'))
+        return render_template('changeFlightStatus.html')
+    else:
+        return redirect(url_for('loginAuth'))
+
+
+
+
+
 
 
 
