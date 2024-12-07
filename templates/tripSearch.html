@@ -26,9 +26,10 @@
                     <div>
                         <label for="startingPoint">From:</label>
                         <select id="startingPoint" name="startingPoint">
-                            <option value="JFK">New York</option>
-                            <option value="MSP">Minneapolis</option>
-                            <option value="PVG">Shanghai</option>
+                            {% for code in codes %}
+                                <option value="{{ code['airport_code'] }}">{{ code['airport_code'] }}</option>
+                            {% endfor %}
+ \
                         </select>
                     </div>
                     <div><p>-----------------------------------></p></div>
@@ -36,9 +37,9 @@
                     <div>
                         <label for="destination">To:</label>
                         <select id="destination" name="destination">
-                            <option value="JFK">New York</option>
-                            <option value="MSP">Minneapolis</option>
-                            <option value="PVG">Shanghai</option>
+                            {% for code in codes %}
+                                <option value="{{ code['airport_code'] }}">{{ code['airport_code'] }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                 </div>
@@ -57,67 +58,11 @@
                 </div>
 
                 <div class="formSection deptDate">
-                    <div>
-                        <!--departure date-->
-                        <label for="deptMonth">Departure Date:</label>
-                        <!--month-->
-                        <select name="deptMonth" id="deptMonth">
-                            <option value="1">January</option>
-                            <option value="2">February</option>
-                            <option value="3">March</option>
-                            <option value="4">April</option>
-                            <option value="5">May</option>
-                            <option value="6">June</option>
-                            <option value="7">July</option>
-                            <option value="8">August</option>
-                            <option value="9">September</option>
-                            <option value="10">October</option>
-                            <option value="11">November</option>
-                            <option value="12">December</option>
-                        </select>
-                        <!--day-->
-                        <input type="text" id="deptDay" name="deptDay" placeholder="day">
-
-                        <!--year-->
-                        <select name="deptYear" id="deptYear">
-                            <option value="2022">2022</option>
-                            <option value="2023">2023</option>
-                            <option value="2024">2024</option>
-                            <option value="2025">2025</option>
-                            <option value="2026">2026</option>
-                        </select>
-                    </div>
+                    <input type="date" name="deptDate" placeholder="departure date"/></br>
                 </div>
 
                 <div class="formSection returnDate" id="returnDate">
-                    <!--return date, only shows if round trip is selected-->
-                    <label for="retMonth">Return Date:</label>
-                    <!--month-->
-                    <select name="retMonth" id="retMonth">
-                        <option value="1">January</option>
-                        <option value="2">February</option>
-                        <option value="3">March</option>
-                        <option value="4">April</option>
-                        <option value="5">May</option>
-                        <option value="6">June</option>
-                        <option value="7">July</option>
-                        <option value="8">August</option>
-                        <option value="9">September</option>
-                        <option value="10">October</option>
-                        <option value="11">November</option>
-                        <option value="12">December</option>
-                    </select>
-                    <!--day-->
-                    <input type="text" id="retDay" name="retDay" placeholder="day">
-
-                    <!--year-->
-                    <select name="retYear" id="retYear">
-                        <option value="2022">2022</option>
-                        <option value="2023">2023</option>
-                        <option value="2024">2024</option>
-                        <option value="2025">2025</option>
-                        <option value="2026">2026</option>
-                    </select>
+                    <input type="date" name="retDate" placeholder="return date"/></br>
                 </div>
 
                 <div class="formSection searchButton"><button type="submit">Search</button></div>

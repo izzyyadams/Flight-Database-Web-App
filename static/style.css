@@ -183,10 +183,7 @@ button:hover {
 
 }
 
-/*Hides user input spending results before they search*/
-#userSpentJS {
-    display: none;
-}
+
 
 /*Each of the sections of the spending results take up 50% width of the screen*/
 .spendingSection {
@@ -201,10 +198,9 @@ button:hover {
 
 /*Styling for form to enter a date to check spending since*/
 .dateForm {
-    border: 5px solid #fdc21e;
     border-radius: 10px;
     padding: 10px 30px 10px 30px ;
-    margin-top: 20px;
+    margin-top: 50px;
     font-family: "Lexend", sans-serif;
 }
 
@@ -235,20 +231,43 @@ tr:hover {
 .bigSection {
     display: flex;
     flex-direction: row;
+
+    width: 100vw;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.results2{
+    margin: 0 auto;
+    margin-right: 175px;
+
+
+}
+
+.bubbles{
+    margin-left: auto;
 }
 
 .bubble {
-    backgroud-color: # kajlsdkfja;
-    color: #klsdajfl;
+    background-color: #f98139;
+    color: black;
     padding: 15px 30px;
     border-radius: 20px;
     text-align: center;
     width: 60%;
     max-width: 400px;
-    left: 25%;
     opacity: 100;
+    margin-bottom: 20px;
+    font-family: "Lexend", sans-serif;
 }
 
+.bubble a{
+    text-decoration: none;
+}
+
+.bubble a:visited{
+    color:inherit;
+}
 
 
 /* styling for the pop up confirmation, called with flash function */

@@ -2,6 +2,7 @@ from flask import Flask, render_template, session, request, url_for, redirect, f
 from datetime import datetime
 import pymysql
 
+
 conn = pymysql.connect(host='localhost', 
                        user='root', 
                        password='', 
@@ -105,19 +106,11 @@ def tripSearch():
         startingPoint = request.form['startingPoint']
         destination = request.form['destination']
         tripType = request.form['tripType']
-        
-        deptMonth = request.form['deptMonth']
-        deptYear = request.form['deptYear']
-        deptDay = request.form['deptDay']
-
-        deptDate = f"{deptYear}-{deptMonth}-{deptDay}"
+        deptDate = request.form['deptDate']
 
         #need if statement incase of one-way
-        if request.form.get('retMonth') and request.form.get('retDay') and request.form.get('retYear'):
-            retMonth = request.form['retMonth']
-            retDay = request.form['retDay']
-            retYear = request.form['retYear']
-            retDate = f"{retYear}-{retMonth}-{retDay}"    
+        if request.form.get('retDate'):
+            retDate = request.form['retDate']   
     
         cursor =  conn.cursor()
 
@@ -150,9 +143,15 @@ def tripSearch():
 
         return render_template('results.html', flightInfoLeaving=organizedLeavingData, flightInfoReturning=organizedReturningData, combinedData=combinedData, tripType=tripType)
             
+    cursor = conn.cursor()
+    query = """SELECT DISTINCT airport_code
+                FROM airport"""
+    cursor.execute(query )
+
+    codes = cursor.fetchall()
 
 
-    return render_template('tripSearch.html')
+    return render_template('tripSearch.html', codes=codes)
 
 #function to cancel ticket, sends user back to home IZZY
 
@@ -305,17 +304,48 @@ def spending():
     lastYear = result[0]['amount']
     query2 = """SELECT DATE_FORMAT(Purchase.purchase_date_time, '%%Y-%%m') AS month, SUM(ticket.calc_price) AS totalSpent
                 FROM Purchase JOIN Ticket ON Purchase.ticket_id = Ticket.ticket_id
-                WHERE Ticket.email = %s
+                WHERE Ticket.email = %s and purchase.purchase_date_time 
                 GROUP BY month
                 ORDER BY month ASC
             """
-    cursor.execute(query2, (email,))
+    cursor.execute(query2, (email, ))
     result2 = cursor.fetchall()
 
 
     cursor.close()
 
+
     return render_template("spending.html", totalSpentYear=lastYear, data=result2)
+
+#user spending results IZZY
+@app.route('/spendingUpdate', methods=['GET', 'POST'])
+def spendingUpdate():
+    email = session['user_id']
+    sinceDate = request.form['dateSince']
+    today = datetime.today()
+    oneYearAgo = today.replace(year=today.year - 1)
+    cursor = conn.cursor()
+    query = """SELECT SUM(ticket.calc_price) as amount
+            FROM Purchase JOIN Ticket ON Purchase.ticket_id = Ticket.ticket_id
+            WHERE email=%s and purchase.purchase_date_time > %s
+            GROUP BY Ticket.email"""
+    cursor.execute(query, (email, oneYearAgo))
+    result = cursor.fetchall()
+    lastYear = result[0]['amount']
+    query2 = """SELECT DATE_FORMAT(Purchase.purchase_date_time, '%%Y-%%m') AS month, SUM(ticket.calc_price) AS totalSpent
+                FROM Purchase JOIN Ticket ON Purchase.ticket_id = Ticket.ticket_id
+                WHERE Ticket.email = %s and purchase.purchase_date_time 
+                GROUP BY month
+                ORDER BY month ASC
+            """
+    cursor.execute(query2, (email, ))
+    result2 = cursor.fetchall()
+
+
+
+
+    cursor.close()
+    return render_template('spendingUpdate.html', totalSpentYear=lastYear, data=result2)
 
 #logout page IZZY
 @app.route('/userLogout', methods=['GET', 'POST'])
@@ -323,7 +353,8 @@ def userLogout():
     if request.method == 'POST':
         yesNo = request.form['yesNo']
         if yesNo == 'logout':
-            session.clear()
+            session.pop('email')
+            
             return redirect(url_for('homepage'))
         else:
             return redirect(url_for('userHome'))
@@ -385,18 +416,13 @@ def homepage():
         destination = request.form['destination']
         tripType = request.form['tripType']
 
-        deptMonth = request.form['deptMonth']
-        deptYear = request.form['deptYear']
-        deptDay = request.form['deptDay']
+        deptDate = request.form['deptDate']
 
-        deptDate = f"{deptYear}-{deptMonth}-{deptDay}"
+
 
         # need if statement incase of one-way
-        if request.form.get('retMonth') and request.form.get('retDay') and request.form.get('retYear'):
-            retMonth = request.form['retMonth']
-            retDay = request.form['retDay']
-            retYear = request.form['retYear']
-            retDate = f"{retYear}-{retMonth}-{retDay}"
+        if request.form.get('retDate'):
+            retDate = request.form['retDate']
 
         cursor = conn.cursor()
 
@@ -426,8 +452,14 @@ def homepage():
 
         return render_template('resultsPublic.html', flightInfoLeaving=organizedLeavingData,
                                flightInfoReturning=organizedReturningData, combinedData=combinedData, tripType=tripType)
+    cursor = conn.cursor()
+    query = """SELECT DISTINCT airport_code
+                FROM airport"""
+    cursor.execute(query )
 
-    return render_template('homepage.html')
+    codes = cursor.fetchall()
+
+    return render_template('homepage.html', codes=codes)
 
 
 # ISABELLE
@@ -439,7 +471,6 @@ def staffHome():
         query = "SELECT * FROM flight WHERE departure > NOW() and departure < NOW() + INTERVAL 1 MONTH"
         cursor.execute(query)
         flights = cursor.fetchall()
-        print(flights)
         cursor2 = conn.cursor()
         cursor2.execute("SELECT first_name FROM staff WHERE username = %s", (username,))
         user = cursor2.fetchall()
@@ -458,6 +489,8 @@ def customerRegister():
         first_name = request.form['first_name']
         last_name = request.form['last_name']
         password = request.form['password']
+
+
         dob = request.form['dob']
         address = request.form['address']
         passport_number = request.form['passport_number']
@@ -528,7 +561,7 @@ def staffLogout():
     if request.method == 'POST':
         yesNo = request.form['yesNo']
         if yesNo == 'logout':
-            session.clear()
+            session.pop('username')
             return redirect(url_for('homepage'))
         else:
             return redirect(url_for('staffHome'))
@@ -747,7 +780,7 @@ def scheduleMaintenance():
 
 
 # customers, accessed within the staffHome page - ISABELLE (NOT DONE!!!!!!)
-@app.route('/viewCustomers', methods=['GET'])
+@app.route('/viewCustomers', methods=['GET', 'POST'])
 def viewCustomers():
     if 'role' in session and session['role'] == 'staff':
         cursor = conn.cursor()
@@ -761,6 +794,7 @@ def viewCustomers():
         query_all_customers = "SELECT DISTINCT email FROM Ticket"
         cursor.execute(query_all_customers)
         all_customers = cursor.fetchall()
+        print(all_customers)
 
         customer_flights = []
         selected_customer = None
@@ -802,8 +836,9 @@ def viewRevenue():
         for ticket in data:
             base_price = ticket['base_price']
             departure = ticket['departure']
-            departure_date = datetime.strptime(departure, '%Y-%m-%d %H:%M:%S')
-            if departure_date < one_month_later:
+            ##datetime.strftime(departure)
+            #departure_date = datetime.strptime(departure, '%Y-%m-%d %H:%M:%S')
+            if departure < one_month_later:
                 revenue_month += base_price
             revenue_year += base_price
 

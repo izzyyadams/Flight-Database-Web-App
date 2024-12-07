@@ -42,7 +42,7 @@
 
             </div>
         </div>
-            <form class="dateSpent" action="\spendingUpdate">
+            <form class="dateSpent" action="\spending">
                 <div class="dateForm">
                     <div>
                         <label for="dateSince">Check your spendings since:</label>
@@ -54,6 +54,30 @@
 
         
         
-       
+        <div class="userSpent" id="userSpentJS">
+            <div class="spendingSection">
+                <h2 class="subheading">Since {{ sinceDate }}, you have spent </h2>
+                <p>${{ sinceSpentYear }}</p>
+            </div>
+            <div class="spendingSection">
+                <h2 class="subheading">By month</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Spent ($)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sinceRow in sinceData %}
+                        <tr>
+                            <td>{{ sinceRow.month }}</td>
+                            <td>{{ sinceRow.spent }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </body>
 </html>

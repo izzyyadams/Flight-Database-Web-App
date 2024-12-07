@@ -21,7 +21,7 @@
         
             <main>
                 <div class="bigSection">
-                    <div>
+                    <div class="results2">
                         <section>
                             <div class="upcomingTrips">
                             <h2 class="subheading">Flights in the next 30 days</h2>
@@ -50,21 +50,23 @@
                             </table>
                         </section>
                     </div>
-                <div class= "actions">
-                    <section>
-                        <h2 class="subheading">Actions</h2>
-                        <ul>
-                            <li><a href="{{ url_for('createFlight') }}">Create New Flight </a></li>
-                            <li><a href="{{ url_for('addAirplane') }}">Add Airplane</a></li>
-                            <li><a href="{{ url_for('addAirport') }}">Add Airport</a></li>
-                            <li><a href="{{ url_for('viewRatings') }}">View Ratings</a></li>
-                            <li><a href="{{ url_for('scheduleMaintenance') }}">Schedule Maintenance</a></li>
-                            <li><a href="{{ url_for('viewCustomers') }}">View Customers</a></li>
-                            <li><a href="{{ url_for('viewRevenue') }}">View Revenue</li>
-                        </ul>
-                    </section>
+                
+                    <div class= "actions">
+                        <section>
+                            <div class="bubbles">
+                            
+                                <div class="bubble"><a href="{{ url_for('createFlight') }}">Create New Flight </a></div>
+                                <div class="bubble"><a href="{{ url_for('addAirplane') }}">Add Airplane</a></div>
+                                <div class="bubble"><a href="{{ url_for('addAirport') }}">Add Airport</a></div>
+                                <div class="bubble"><a href="{{ url_for('viewRatings') }}">View Ratings</a></div>
+                                <div class="bubble"><a href="{{ url_for('scheduleMaintenance') }}">Schedule Maintenance</a></div>
+                                <div class="bubble"><a href="{{ url_for('viewCustomers') }}">View Customers</a></div>
+                                <div class="bubble"><a href="{{ url_for('viewRevenue') }}">View Revenue</div>
+                            </div>
+                            
+                        </section>
+                    </div>
                 </div>
-            </div>
         </main>
     </body>
 </html>

@@ -15,21 +15,21 @@
             <h1>Customers Overview </h1>
         </div>
         <div class="frequent-customer-section">
-            <h2>Most Frequent Customer (Last Year)</h2>
+            <h2 class="subheading">Most Frequent Customer (Last Year)</h2>
             {% if frequent_customer %}
-            <p><strong>Email:</strong> {{ frequent_customer['customer_email'] }}</p>
+            <p><strong>Email:</strong> {{ frequent_customer['email'] }}</p>
             <p><strong>Flights Taken:</strong> {{ frequent_customer['flight_count'] }}</p>
             {% else %}
             <p>No frequent customers found for the last year.</p>
             {% endif %}
         </div>
 <div class="all-customers-section">
-            <h2>View Flights for a Customer</h2>
+            <h2 class="subheading">View Flights for a Customer</h2>
             <form method="POST" action="{{ url_for('viewCustomers') }}">
-                <label for="customer_email">Select a Customer:</label>
-                <select name="customer_email" id="customer_email" required>
+                <label for="email">Select a Customer:</label>
+                <select name="email" id="email" required>
                     {% for customer in all_customers %}
-                    <option value="{{ customer['customer_email'] }}">{{ customer['customer_email'] }}</option>
+                    <option value="{{ customer['email'] }}">{{ customer['email'] }}</option>
                     {% endfor %}
                 </select>
                 <button type="submit">View Flights</button>
