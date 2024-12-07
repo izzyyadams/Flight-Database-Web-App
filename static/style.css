@@ -237,6 +237,19 @@ tr:hover {
     flex-direction: row;
 }
 
+.bubble {
+    backgroud-color: # kajlsdkfja;
+    color: #klsdajfl;
+    padding: 15px 30px;
+    border-radius: 20px;
+    text-align: center;
+    width: 60%;
+    max-width: 400px;
+    left: 25%;
+    opacity: 100;
+}
+
+
 
 /* styling for the pop up confirmation, called with flash function */
 .alert.success {
