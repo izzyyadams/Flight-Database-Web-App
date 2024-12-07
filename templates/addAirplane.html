@@ -25,11 +25,17 @@
     {% endwith %}
 <h2 class="subheading">Please enter the required information</h2>
 <form action="/addAirplane" method="POST">
+    <label for="airplane_id">Airplane ID:</label>
     <input type="number" name="airplane_id" placeholder="airplane_id"/></br>
+    <label for="airline_name">Airline Name:</label>
     <input type="text" name="airline_name" placeholder="airline_name"/></br>
+    <label for="manufactuer">Manufactuer:</label>
     <input type="text" name="manufacturer" placeholder="manufacturer"/></br>
+    <label for="model_number">Model Number:</label>
     <input type="number" name="model_number" placeholder="model_number"/></br>
+    <label for="manufactur_date">Manufactur Date:</label>
     <input type="date" name="manufactur_date" placeholder="manufactur_date"/></br>
+    <label for="num_seats">Number of Seats:</label>
     <input type="number" name="num_seats" placeholder="num_seats"/></br>
     <input type="submit" value= addAirplane />
     {% if error %}

@@ -408,6 +408,7 @@ def determine_user_type(email, password):
 
     cursor.execute('SELECT password FROM Customer WHERE email = %s', (email,))
     customer = cursor.fetchone()
+    cursor.close()
     if customer and customer['password'] == password:
         return "customer"
 
@@ -505,9 +506,11 @@ def staffHome():
         query = "SELECT * FROM flight WHERE departure > NOW() and departure < NOW() + INTERVAL 1 MONTH"
         cursor.execute(query)
         flights = cursor.fetchall()
+        cursor.close()
         cursor2 = conn.cursor()
         cursor2.execute("SELECT first_name FROM staff WHERE username = %s", (username,))
         user = cursor2.fetchall()
+        cursor2.close()
         name = user[0]['first_name']
         return render_template('staffHome.html', flights=flights, name=name)
     else:
@@ -534,6 +537,7 @@ def customerRegister():
         query = 'Select * FROM Customer WHERE email = %s'
         cursor.execute(query, (username,))
         data = cursor.fetchone()
+      
 
         if data:
             error = "This customer already exists."
@@ -571,6 +575,7 @@ def staffRegister():
         query = 'SELECT * FROM Staff WHERE username = %s'
         cursor.execute(query, (username,))
         data = cursor.fetchone()
+      
 
         if data:
             error = "This staff already exists."
@@ -626,6 +631,7 @@ def createFlight():
             cursor.execute(query, (flight_num,))
 
             data = cursor.fetchone()
+            
 
             if data:
                 # if the query returns data than the flight already exists
@@ -680,14 +686,16 @@ def addAirplane():
                 cursor.execute(ins, (airplane_id, airline_name, manufacturer, model_number, manufactur_date, num_seats))
                 conn.commit()
                 cursor.close()
+                
+                query_airplanes = 'SELECT * FROM Airplane WHERE airline_name = %s'
+                cursor.execute(query_airplanes, (airline_name,))
+                airplanes = cursor.fetchall()
+              
                 flash("Airplane added!", "success")
-                return render_template("addAirplane.html")
+                return render_template("addAirplaneConfirmation.html", airplanes=airplanes)
 
         else:
             return render_template("addAirplane.html")
-
-
-
 
     else:
         return redirect(url_for('loginAuth'))
@@ -750,16 +758,16 @@ def viewRatings():
             comment = entry['comments']
 
             if flight_num not in flight_data:
-                flight_data[flight_num] = {'ratings': [], 'comments': []}
+                flight_data[flight_num] = {'ratings': []}
 
-            if rating is not None:
-                flight_data[flight_num]['ratings'].append(rating)
-            if comment:
-                flight_data[flight_num]['comments'].append(comment)
+            if rating is not None or comment:
+                flight_data[flight_num]['ratings'].append({'rating': rating, 'comment': comment})
+           
 
         flight_averages = {
-            flight_num: sum(data['ratings']) / len(data['ratings']) if data['ratings'] else None
-            for flight_num, data in flight_data.items()
+            flight_num: sum([data['rating'] for data in flight_data[flight_num]['ratings']]) / len(flight_data[flight_num]['ratings']) 
+            if flight_data[flight_num]['ratings'] else None
+            for flight_num in flight_data
         }
         flight_details = []
         for flight_num, data in flight_data.items():
@@ -879,6 +887,32 @@ def viewRevenue():
         return render_template("viewRevenue.html", revenue_month=revenue_month, revenue_year=revenue_year)
     else:
         return redirect(url_for('loginAuth'))
+
+
+@app.route('/changeFlightStatus', methods=['GET', 'POST'])
+def changeFlightStatus():
+    if 'role' in session and session['role'] == 'staff':
+        if request.method == 'POST':
+            status = request.form['status']
+            airplane_id = request.form['airplane_id']
+
+            cursor = conn.cursor()
+            query = """UPDATE Flight SET status = %s WHERE flight_id = %s"""
+            cursor.execute(query, (status, airplane_id))
+            conn.commit()
+
+            cursor.close()
+
+            # Flash a success message
+            flash("Flight status updated successfully!", category="success")
+
+            return redirect(url_for('changeFlightStatus'))
+        return render_template('changeFlightStatus.html')
+    else:
+        return redirect(url_for('loginAuth'))
+
+
+
 
 
 

@@ -25,10 +25,15 @@
     {% endwith %}
 <h2 class="subheading">Please enter the required information</h2>
 <form action="/addAirport" method="POST">
+    <label for="airport_code">Airport Code:</label>
     <input type="text" name="airport_code" placeholder="airport_code"/></br>
+    <label for="airport_name">Airport Name:</label>
     <input type="text" name="airport_name" placeholder="airport_name"/></br>
+    <label for="city">City:</label>
     <input type="text" name="city" placeholder="city"/></br>
+    <label for="country">Country:</label>
     <input type="text" name="country" placeholder="country"/></br>
+    <label for="num_terminals">Number of Terminals :</label>
     <input type="number" name="num_terminals" placeholder="num_terminals"/></br>
     <input type="submit" value= addAirport />
     {% if error %}
