@@ -10,7 +10,7 @@
         <div class="navigation">
             <div><a href="{{ url_for('userHome') }}">Home</a></div>
             <div><a href="{{ url_for('tripSearch') }}">Trip Search</a></div>
-            <div><a href="{{ url_for('userPastFlights') }}">Your Spending</a></div>
+            <div><a href="{{ url_for('userPastFlights') }}">Past Flights</a></div>
             <div><a href="{{ url_for('userLogout') }}">Logout</a></div>
         </div>
         <div class="heading">
@@ -42,7 +42,7 @@
 
             </div>
         </div>
-            <form class="dateSpent" action="\spending">
+            <form class="dateSpent" action="\spendingUpdate" method='POST'>
                 <div class="dateForm">
                     <div>
                         <label for="dateSince">Check your spendings since:</label>
@@ -57,28 +57,29 @@
         
         <div class="userSpent" id="userSpentJS">
             <div class="spendingSection">
-                <h2 class="subheading">Between{{ startDate }} and {{ endDate }}, you have spent </h2>
+                <h2 class="subheading">Between {{ startDate }} and {{ endDate }}, you have spent </h2>
                 <p>${{ sinceTotal }}</p>
             </div>
             <div class="spendingSection">
                 <h2 class="subheading">By month</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Month</th>
-                            <th>Spent ($)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for sinceRow in sinceData %}
-                        <tr>
-                            <td>{{ sinceRow.month }}</td>
-                            <td>{{ sinceRow.spent }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Total Spent</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for data in rangeMonthData %}
+                            <tr>
+                                <td>{{ data['month'] }}</td>
+                                <td>${{ data['totalSpent'] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
             </div>
         </div>
     </body>
 </html>
+

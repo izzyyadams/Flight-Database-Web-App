@@ -291,6 +291,11 @@ def rateAndComment():
 #spending function IZZY
 @app.route('/spending', methods=['GET', 'POST'])
 def spending():
+    today = datetime.today()
+    if today.month > 6:
+        sixMonthsAgo = today.replace(month=(today.month - 6))
+    else:
+        sixMonthsAgo = today.replace(month=((12 + today.month - 6)))
 
     email = session['user_id']
     today = datetime.today()
@@ -302,14 +307,17 @@ def spending():
             GROUP BY Ticket.email"""
     cursor.execute(query, (email, oneYearAgo))
     result = cursor.fetchall()
-    lastYear = result[0]['amount']
+    if result:
+        lastYear = result[0]['amount']
+    else:
+        lastYear = 0
     query2 = """SELECT DATE_FORMAT(Purchase.purchase_date_time, '%%Y-%%m') AS month, SUM(ticket.calc_price) AS totalSpent
                 FROM Purchase JOIN Ticket ON Purchase.ticket_id = Ticket.ticket_id
-                WHERE Ticket.email = %s and purchase.purchase_date_time 
+                WHERE Ticket.email = %s and purchase.purchase_date_time > %s
                 GROUP BY month
                 ORDER BY month ASC
             """
-    cursor.execute(query2, (email, ))
+    cursor.execute(query2, (email, sixMonthsAgo))
     result2 = cursor.fetchall()
 
 
@@ -321,6 +329,11 @@ def spending():
 #user spending results IZZY
 @app.route('/spendingUpdate', methods=['POST'])
 def spendingUpdate():
+    today = datetime.today()
+    if today.month > 6:
+        sixMonthsAgo = today.replace(month=(today.month - 6))
+    else:
+        sixMonthsAgo = today.replace(month=((12 + today.month - 6)))
     email = session['user_id']
     cursor = conn.cursor()
     startDate = request.form['startDateInput']
@@ -344,7 +357,6 @@ def spendingUpdate():
 
 
 
-    today = datetime.today()
     oneYearAgo = today.replace(year=today.year - 1)
     query2 = """SELECT SUM(ticket.calc_price) as amount
             FROM Purchase JOIN Ticket ON Purchase.ticket_id = Ticket.ticket_id
@@ -359,10 +371,6 @@ def spendingUpdate():
         lastYear = 0
 
 
-    if today.month > 6:
-        sixMonthsAgo = today.replace(month=(today.month - 6))
-    else:
-        sixMonthsAgo = today.replace(month=((12 + today.month - 6)))
 
 
     query3 = """SELECT DATE_FORMAT(Purchase.purchase_date_time, '%%Y-%%m') AS month, SUM(ticket.calc_price) AS totalSpent
@@ -374,12 +382,26 @@ def spendingUpdate():
     cursor.execute(query3, (email, sixMonthsAgo))
     result3 = cursor.fetchall()
 
+    query4 = """SELECT DATE_FORMAT(Purchase.purchase_date_time, '%%Y-%%m') AS month, 
+                    SUM(ticket.calc_price) AS totalSpent
+                    FROM Purchase 
+                    JOIN Ticket ON Purchase.ticket_id = Ticket.ticket_id
+                    WHERE email=%s AND purchase.purchase_date_time BETWEEN %s AND %s
+                    GROUP BY month
+                    ORDER BY month ASC"""
+    cursor.execute(query4, (email, startDateObj, endDateObj))
+    resultRange = cursor.fetchall()
+    print(resultRange)
+
+    
+ 
+
 
 
 
 
     cursor.close()
-    return render_template('spendingUpdate.html', totalSpentYear=lastYear, data=result3, startDate=formattedStartDate, endDate=formattedEndDate, sinceTotal=sinceYear)
+    return render_template('spendingUpdate.html', totalSpentYear=lastYear, data=result3, startDate=formattedStartDate, endDate=formattedEndDate, sinceTotal=sinceYear, rangeMonthData=resultRange)
 
 #logout page IZZY
 @app.route('/userLogout', methods=['GET', 'POST'])
@@ -387,7 +409,7 @@ def userLogout():
     if request.method == 'POST':
         yesNo = request.form['yesNo']
         if yesNo == 'logout':
-            session.pop('email')
+            session.clear()
             
             return redirect(url_for('homepage'))
         else:
@@ -408,7 +430,6 @@ def determine_user_type(email, password):
 
     cursor.execute('SELECT password FROM Customer WHERE email = %s', (email,))
     customer = cursor.fetchone()
-    cursor.close()
     if customer and customer['password'] == password:
         return "customer"
 
@@ -506,11 +527,9 @@ def staffHome():
         query = "SELECT * FROM flight WHERE departure > NOW() and departure < NOW() + INTERVAL 1 MONTH"
         cursor.execute(query)
         flights = cursor.fetchall()
-        cursor.close()
         cursor2 = conn.cursor()
         cursor2.execute("SELECT first_name FROM staff WHERE username = %s", (username,))
         user = cursor2.fetchall()
-        cursor2.close()
         name = user[0]['first_name']
         return render_template('staffHome.html', flights=flights, name=name)
     else:
@@ -600,7 +619,7 @@ def staffLogout():
     if request.method == 'POST':
         yesNo = request.form['yesNo']
         if yesNo == 'logout':
-            session.pop('username')
+            session.clear()
             return redirect(url_for('homepage'))
         else:
             return redirect(url_for('staffHome'))
@@ -679,13 +698,13 @@ def addAirplane():
             if data:
                 # there already is a plane with this id
                 error = "This plane already exists."
-                cursor.close()
-                return render_template(addAirplane.template, error=error)
+                #cursor.close()
+                return render_template("addAirplane.html", error=error)
             else:
                 ins = 'INSERT INTO Airplane VALUES (%s, %s, %s, %s, %s, %s)'
                 cursor.execute(ins, (airplane_id, airline_name, manufacturer, model_number, manufactur_date, num_seats))
                 conn.commit()
-                cursor.close()
+                #cursor.close()
                 
                 query_airplanes = 'SELECT * FROM Airplane WHERE airline_name = %s'
                 cursor.execute(query_airplanes, (airline_name,))
@@ -758,21 +777,21 @@ def viewRatings():
             comment = entry['comments']
 
             if flight_num not in flight_data:
-                flight_data[flight_num] = {'ratings': []}
+                flight_data[flight_num] = {'ratings_comments': []}
 
             if rating is not None or comment:
-                flight_data[flight_num]['ratings'].append({'rating': rating, 'comment': comment})
+                flight_data[flight_num]['ratings_comments'].append({'rating': rating, 'comment': comment})
            
 
         flight_averages = {
-            flight_num: sum([data['rating'] for data in flight_data[flight_num]['ratings']]) / len(flight_data[flight_num]['ratings']) 
-            if flight_data[flight_num]['ratings'] else None
+            flight_num: sum([entry['rating'] for entry in flight_data[flight_num]['ratings_comments']]) / len(flight_data[flight_num]['ratings_comments']) 
+            if flight_data[flight_num]['ratings_comments'] else None
             for flight_num in flight_data
         }
         flight_details = []
         for flight_num, data in flight_data.items():
             flight_details.append({
-                "flight_num": flight_num, "average": flight_averages[flight_num], 'comments': data['comments']
+                "flight_num": flight_num, "average": flight_averages[flight_num], 'ratings_comments': data['ratings_comments']
             })
 
         cursor.close()
@@ -836,7 +855,6 @@ def viewCustomers():
         query_all_customers = "SELECT DISTINCT email FROM Ticket"
         cursor.execute(query_all_customers)
         all_customers = cursor.fetchall()
-        print(all_customers)
 
         customer_flights = []
         selected_customer = None
@@ -897,7 +915,7 @@ def changeFlightStatus():
             airplane_id = request.form['airplane_id']
 
             cursor = conn.cursor()
-            query = """UPDATE Flight SET status = %s WHERE flight_id = %s"""
+            query = """UPDATE Flight SET status = %s WHERE airplane_id = %s"""
             cursor.execute(query, (status, airplane_id))
             conn.commit()
 

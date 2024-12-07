@@ -14,7 +14,6 @@
             <th>Airline Name</th>
             <th>Manufacturer</th>
             <th>Model Number</th>
-            <th>Manufacture Date</th>
             <th>Number of Seats</th>
         </tr>
         {% for airplane in airplanes %}
@@ -23,7 +22,6 @@
             <td>{{ airplane.airline_name }}</td>
             <td>{{ airplane.manufacturer }}</td>
             <td>{{ airplane.model_number }}</td>
-            <td>{{ airplane.manufactur_date }}</td>
             <td>{{ airplane.num_seats }}</td>
         </tr>
         {% endfor %}
