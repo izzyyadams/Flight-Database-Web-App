@@ -374,6 +374,7 @@ def determine_user_type(email, password):
 
     cursor.execute('SELECT password FROM Customer WHERE email = %s', (email,))
     customer = cursor.fetchone()
+    cursor.close()
     if customer and customer['password'] == password:
         return "customer"
 
@@ -471,9 +472,11 @@ def staffHome():
         query = "SELECT * FROM flight WHERE departure > NOW() and departure < NOW() + INTERVAL 1 MONTH"
         cursor.execute(query)
         flights = cursor.fetchall()
+        cursor.close()
         cursor2 = conn.cursor()
         cursor2.execute("SELECT first_name FROM staff WHERE username = %s", (username,))
         user = cursor2.fetchall()
+        cursor2.close()
         name = user[0]['first_name']
         return render_template('staffHome.html', flights=flights, name=name)
     else:
@@ -500,6 +503,7 @@ def customerRegister():
         query = 'Select * FROM Customer WHERE email = %s'
         cursor.execute(query, (username,))
         data = cursor.fetchone()
+      
 
         if data:
             error = "This customer already exists."
@@ -537,6 +541,7 @@ def staffRegister():
         query = 'SELECT * FROM Staff WHERE username = %s'
         cursor.execute(query, (username,))
         data = cursor.fetchone()
+      
 
         if data:
             error = "This staff already exists."
@@ -592,6 +597,7 @@ def createFlight():
             cursor.execute(query, (flight_num,))
 
             data = cursor.fetchone()
+            
 
             if data:
                 # if the query returns data than the flight already exists
