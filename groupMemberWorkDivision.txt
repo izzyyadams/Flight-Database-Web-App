@@ -1,0 +1,29 @@
+Isabelle Larson:
+- All the staff pages 
+  - view flights
+  - create new flights
+  - change status of flight
+  - add airplane in the system
+  - add new airport in the system
+  - view flight ratings 
+  - schedule maintenance
+  - view frequent customers
+  - view earned revenue
+  - staff logout
+- The inital homepage
+- Login page
+- Staff register
+- Customer regiter
+* both the python flask app routes and the html files for each one 
+
+Isabelle Adams: 
+- All the customer pages
+  - View my flights
+  - search for flights 
+  - purchase tickets
+  - cancel trip
+  - give rating and comments on previous flights
+  - track spending
+  - customer logout 
+* both the python flask app routes and the html files for each one
+- All the css formating in the css file 
