@@ -17,6 +17,7 @@ app.secret_key = 'isabelle'
 
 
 
+
 #function to organize data from query to use for display IZZY
 def organizeData(results):
     flightInfoList= []
@@ -318,34 +319,67 @@ def spending():
     return render_template("spending.html", totalSpentYear=lastYear, data=result2)
 
 #user spending results IZZY
-@app.route('/spendingUpdate', methods=['GET', 'POST'])
+@app.route('/spendingUpdate', methods=['POST'])
 def spendingUpdate():
     email = session['user_id']
-    sinceDate = request.form['dateSince']
+    cursor = conn.cursor()
+    startDate = request.form['startDateInput']
+    endDate = request.form['endDateInput']
+    startDateObj = datetime.strptime(startDate, '%Y-%m-%d')
+    endDateObj = datetime.strptime(endDate, '%Y-%m-%d')
+
+    query = """SELECT SUM(ticket.calc_price) as amount
+        FROM Purchase JOIN Ticket ON Purchase.ticket_id = Ticket.ticket_id
+        WHERE email=%s and purchase.purchase_date_time BETWEEN %s and %s
+        GROUP BY Ticket.email"""
+    formattedStartDate =  startDateObj.strftime("%B %d, %Y")
+    formattedEndDate = endDateObj.strftime("%B %d, %Y")
+    cursor.execute(query, (email, startDate, endDate))
+    result = cursor.fetchall()
+    if not result:
+        sinceYear = 0
+    else:
+        sinceYear = result[0]['amount']
+
+
+
+
     today = datetime.today()
     oneYearAgo = today.replace(year=today.year - 1)
-    cursor = conn.cursor()
-    query = """SELECT SUM(ticket.calc_price) as amount
+    query2 = """SELECT SUM(ticket.calc_price) as amount
             FROM Purchase JOIN Ticket ON Purchase.ticket_id = Ticket.ticket_id
             WHERE email=%s and purchase.purchase_date_time > %s
             GROUP BY Ticket.email"""
-    cursor.execute(query, (email, oneYearAgo))
-    result = cursor.fetchall()
-    lastYear = result[0]['amount']
-    query2 = """SELECT DATE_FORMAT(Purchase.purchase_date_time, '%%Y-%%m') AS month, SUM(ticket.calc_price) AS totalSpent
+    cursor.execute(query2, (email, oneYearAgo))
+    result2 = cursor.fetchall()
+
+    if result2:
+        lastYear = result2[0]['amount']
+    else:
+        lastYear = 0
+
+
+    if today.month > 6:
+        sixMonthsAgo = today.replace(month=(today.month - 6))
+    else:
+        sixMonthsAgo = today.replace(month=((12 + today.month - 6)))
+
+
+    query3 = """SELECT DATE_FORMAT(Purchase.purchase_date_time, '%%Y-%%m') AS month, SUM(ticket.calc_price) AS totalSpent
                 FROM Purchase JOIN Ticket ON Purchase.ticket_id = Ticket.ticket_id
-                WHERE Ticket.email = %s and purchase.purchase_date_time 
+                WHERE Ticket.email = %s and purchase.purchase_date_time > %s
                 GROUP BY month
                 ORDER BY month ASC
             """
-    cursor.execute(query2, (email, ))
-    result2 = cursor.fetchall()
+    cursor.execute(query3, (email, sixMonthsAgo))
+    result3 = cursor.fetchall()
+
 
 
 
 
     cursor.close()
-    return render_template('spendingUpdate.html', totalSpentYear=lastYear, data=result2)
+    return render_template('spendingUpdate.html', totalSpentYear=lastYear, data=result3, startDate=formattedStartDate, endDate=formattedEndDate, sinceTotal=sinceYear)
 
 #logout page IZZY
 @app.route('/userLogout', methods=['GET', 'POST'])

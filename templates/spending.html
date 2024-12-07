@@ -42,11 +42,12 @@
 
             </div>
         </div>
-            <form class="dateSpent" action="\spendingUpdate">
+            <form class="dateSpent" action="/spendingUpdate" method='POST'>
                 <div class="dateForm">
                     <div>
-                        <label for="dateSince">Check your spendings since:</label>
-                        <input type="date" name="dateSince" placeholder="dateSince"/></br>
+                        <label for="dateSince">Check your spendings between:</label>
+                        <input type="date" name="startDateInput" placeholder="startDate"/></br>
+                        <input type="date" name="endDateInput" placeholder="endDate"/></br>
                     <div class="submitButton"><button type="submit" id="submitJS">Submit</button></div>
                 </div>
             </form>

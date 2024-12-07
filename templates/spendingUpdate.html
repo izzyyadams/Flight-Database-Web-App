@@ -46,7 +46,8 @@
                 <div class="dateForm">
                     <div>
                         <label for="dateSince">Check your spendings since:</label>
-                        <input type="date" name="dateSince" placeholder="dateSince"/></br>
+                        <input type="date" name="startDateInput" placeholder="startDate"/></br>
+                        <input type="date" name="endDateInput" placeholder="endDate"/></br>
                     <div class="submitButton"><button type="submit" id="submitJS">Submit</button></div>
                 </div>
             </form>
@@ -56,8 +57,8 @@
         
         <div class="userSpent" id="userSpentJS">
             <div class="spendingSection">
-                <h2 class="subheading">Since {{ sinceDate }}, you have spent </h2>
-                <p>${{ sinceSpentYear }}</p>
+                <h2 class="subheading">Between{{ startDate }} and {{ endDate }}, you have spent </h2>
+                <p>${{ sinceTotal }}</p>
             </div>
             <div class="spendingSection">
                 <h2 class="subheading">By month</h2>
