@@ -254,7 +254,7 @@ tr:hover {
     transform: translateX(-50%);/* Ensure it's centered */
     z-index: 9999;              /* Make sure it stays on top */
     opacity: 0;                 /* Initially hidden */
-    animation: fadeIn 3s ease-out forwards; /* Animation to make it fade in */
+    animation: fadeIn 5s ease-out forwards; /* Animation to make it fade in */
 }
 
 @keyframes fadeIn {
