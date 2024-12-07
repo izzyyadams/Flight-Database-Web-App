@@ -14,6 +14,23 @@ spending.html: structure of user spending data page
 userLogout.html: structure of logout page for user
 userPastFlights: structure of user's past flights
 
+addAirplane.html: structure of the page for a staff to add an airplane to the database
+addAirplaneConfirmation.html: structure of the confirmation page after you add an airplane (shows all airplanes for the airline)
+addAirport.html: structure of the page to add an airport to the databse
+changeFlightStatus.html: structure of the page to change the flight status on a flight 
+createFlight.html: structure of that page that creates a flight and add it to the database
+customerRegister.html: structure of that page that registers a customer and add them to the databse
+homepage.html: structure of the page that creates the first page you see on the webstie
+login.html: structure of the login page
+scheduleMaintenance.html: structure of page to schedule maintence for staff 
+staffHome.html: structure of the staff home page
+staffLogout.html: structure of the staff logout page
+staffRegister.html: strucutre of the staff register page
+viewCustomers.html: structure of the page for staff to view customers
+viewRatings.html: structure of the page for staff to view ratings 
+viewRevenue.html: structure of the page for staff to view revenue
+
+
 
 
 
@@ -22,7 +39,7 @@ spending.js: displays userInput spending divs
 tripSearch.js: hides second date entry for round-trip logic
 
 PYTHON:
-main.py: 
+main.py: file consisting of all our app route functions 
 
 TXT:
 fileList.txt: this file
