@@ -21,7 +21,7 @@
                 <tr>
                     <th>Flight Number</th>
                     <th>Average Rating</th>
-                    <th>Comments</th>
+                    <th>Ratings and Comments</th>
                 </tr>
             </thead>
             <tbody>
@@ -38,8 +38,11 @@
                     <td>
                         {% if flight.comments %}
                             <ul>
-                                {% for comment in flight.comments %}
-                                <li>{{ comment }}</li>
+                                {% for entry in flight.comments %}
+                                <li><strong>Rating:</strong> {{ entry.rating }}<br>
+                                    <strong>Comment:</strong> {{entry.comment}}
+                                </li>
+                                
                                 {% endfor %}
                             </ul>
                         {% else %}
