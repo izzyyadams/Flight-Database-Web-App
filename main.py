@@ -652,14 +652,16 @@ def addAirplane():
                 cursor.execute(ins, (airplane_id, airline_name, manufacturer, model_number, manufactur_date, num_seats))
                 conn.commit()
                 cursor.close()
+                
+                query_airplanes = 'SELECT * FROM Airplane WHERE airline_name = %s'
+                cursor.execute(query_airplanes, (airline_name,))
+                airplanes = cursor.fetchall()
+              
                 flash("Airplane added!", "success")
-                return render_template("addAirplane.html")
+                return render_template("addAirplaneConfirmation.html", airplanes=airplanes)
 
         else:
             return render_template("addAirplane.html")
-
-
-
 
     else:
         return redirect(url_for('loginAuth'))
