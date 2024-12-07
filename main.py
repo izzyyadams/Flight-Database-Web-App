@@ -724,16 +724,16 @@ def viewRatings():
             comment = entry['comments']
 
             if flight_num not in flight_data:
-                flight_data[flight_num] = {'ratings': [], 'comments': []}
+                flight_data[flight_num] = {'ratings': []}
 
-            if rating is not None:
-                flight_data[flight_num]['ratings'].append(rating)
-            if comment:
-                flight_data[flight_num]['comments'].append(comment)
+            if rating is not None or comment:
+                flight_data[flight_num]['ratings'].append({'rating': rating, 'comment': comment})
+           
 
         flight_averages = {
-            flight_num: sum(data['ratings']) / len(data['ratings']) if data['ratings'] else None
-            for flight_num, data in flight_data.items()
+            flight_num: sum([data['rating'] for data in flight_data[flight_num]['ratings']]) / len(flight_data[flight_num]['ratings']) 
+            if flight_data[flight_num]['ratings'] else None
+            for flight_num in flight_data
         }
         flight_details = []
         for flight_num, data in flight_data.items():
