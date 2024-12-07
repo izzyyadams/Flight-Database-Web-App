@@ -239,7 +239,7 @@ tr:hover {
 
 
 /* styling for the pop up confirmation, called with flash function */
-.flash-message {
+.alert.success {
     background-color: #d4edda;  /* Green background for success */
     color: #155724;             /* Green text for success */
     padding: 15px 30px;         /* Add padding for the rounded box */

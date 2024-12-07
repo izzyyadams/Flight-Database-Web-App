@@ -8,7 +8,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Calistoga&family=Lexend:wght@100..900&display=swap" rel="stylesheet">
     </head>
 <body>
-<div class="navigation">
+    <div class="navigation">
             <div><a href="{{ url_for('homepage') }}">Return to Home</a></div>
         </div>
         <div class="heading">
@@ -16,11 +16,9 @@
         </div>
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <ul>
                 {% for category, message in messages %}
                     <li class="alert {{ category }}">{{ message }}</li>
                 {% endfor %}
-            </ul>
         {% endif %}
     {% endwith %}
 <h2 class="subheading">Please enter the required information</h2>
