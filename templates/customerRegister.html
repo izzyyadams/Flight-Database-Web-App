@@ -16,11 +16,11 @@
         </div>
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <ul>
+    
                 {% for category, message in messages %}
-                    <li class="alert {{ category }}">{{ message }}</li>
+                    <div class="alert {{ category }}">{{ message }}</div>
                 {% endfor %}
-            </ul>
+        
         {% endif %}
     {% endwith %}
 <h2 class="subheading">Please enter the required information</h2>
