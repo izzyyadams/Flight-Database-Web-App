@@ -25,8 +25,11 @@
     {% endwith %}
 <h2 class="subheading">Please enter the required information</h2>
 <form action="/scheduleMaintenance" method="POST">
+    <label for="airplane_id">Airplane ID:</label>
     <input type="number" name="airplane_id" placeholder="airplane_id"/></br>
+    <label for="start_date_time">Starting Date and Time:</label>
     <input type="datetime-local" name="start_date_time" placeholder="start_date_time"/></br>
+    <label for="end_date_time">Ending Date and Time:</label>
     <input type="datetime-local" name="end_date_time" placeholder="end_date_time"/></br>
     <input type="submit" value= scheduleMaintenance />
     {% if error %}
