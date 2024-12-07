@@ -24,14 +24,23 @@
 <h2 class="subheading">Please enter the required information</h2>
 
 <form action="/customerRegister" method ="POST">
+  <label for="email">Email:</label>
   <input type="text" name="email" placeholder="email"/></br>
+    <label for="passport_country">Passport Country:</label>
   <input type="text" name="passport_country" placeholder="passport_country"/></br>
+    <label for="first_name">First Name:</label>
   <input type="text" name="first_name" placeholder="first_name"/></br>
+    <label for="last_name">Last Name:</label>
   <input type="text" name="last_name" placeholder="last_name"/></br>
+    <label for="password">Password:</label>
   <input type="password" name="password" placeholder="password"/></br>
+    <label for="dob">Date of Birth:</label>
   <input type="date" name="dob" placeholder="dob"/></br>
+    <label for="address">Address:</label>
   <input type="text" name="address" placeholder="address"/></br>
+    <label for="passport_number">Passport Number:</label>
   <input type="number" name="passport_number" placeholder="passport_number"/></br>
+    <label for="passport_exp_date">Passport Expiration Date:</label>
   <input type="date" name="passport_exp_date" placeholder="passport_exp_date"/>
   <input type="submit" value= customerRegister />
   {% if error %}
