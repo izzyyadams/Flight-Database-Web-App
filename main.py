@@ -1,6 +1,7 @@
 from flask import Flask, render_template, session, request, url_for, redirect, flash
 from datetime import datetime
 import pymysql
+from decimal import Decimal
 
 
 conn = pymysql.connect(host='localhost', 
@@ -64,10 +65,13 @@ def organizeData(results):
         if capacityResult:
             capacity = capacityResult[0]['capacity']
         cursor.close()
+        print(tickets)
+        print(capacity)
         if tickets > 0.8 * capacity:
-            flightInfo['basePrice'] = flightInfo['basePrice']  * 1.25
+            flightInfo['basePrice'] = (flightInfo['basePrice']  * Decimal('1.25')).quantize(Decimal('0.00'))
         if tickets < capacity:
             flightInfoList.append(flightInfo)
+        cursor.close()
 
 
     return flightInfoList

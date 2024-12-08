@@ -2,9 +2,7 @@ Files:
 
 HTML:
 
-homepage.html:
-login.html:
-staffHome.html:
+
 
 userHome.html: structure of user home page
 tripSearch.html: structure of user trip search
@@ -35,7 +33,6 @@ viewRevenue.html: structure of the page for staff to view revenue
 
 
 JS:
-spending.js: displays userInput spending divs 
 tripSearch.js: hides second date entry for round-trip logic
 
 PYTHON:
