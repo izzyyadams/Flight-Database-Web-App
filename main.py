@@ -20,7 +20,7 @@ app.secret_key = 'isabelle'
 
 
 #function to organize data from query to use for display IZZY
-def organizeData(results):
+def organizeData(results, organizeType):
     flightInfoList= []
     for flight in results:
 
@@ -67,7 +67,9 @@ def organizeData(results):
         cursor.close()
         if tickets > 0.8 * capacity:
             flightInfo['basePrice'] = (flightInfo['basePrice']  * Decimal('1.25')).quantize(Decimal('0.00'))
-        if tickets < capacity:
+        if organizeType == 'search' and tickets < capacity:
+            flightInfo.append(flightInfo)
+        if organizeType == 'mine':
             flightInfoList.append(flightInfo)
         cursor.close()
 
@@ -98,7 +100,8 @@ def userHome():
     userFlights = cursor2.fetchall()
     cursor2.close()
     print(userFlights)
-    flightInfoList = organizeData(userFlights)
+    organizeType = 'mine'
+    flightInfoList = organizeData(userFlights, organizeType)
     print(flightInfoList)
 
     return render_template('userHome.html', name=name, flightInfo=flightInfoList)
@@ -127,7 +130,8 @@ def tripSearch():
                 WHERE flight.airport_code=%s AND flight.arrival_airport_code=%s AND DATE(flight.departure)=%s and flight.departure > NOW()"""
         cursor.execute(query, (startingPoint, destination, deptDate))
         leaving = cursor.fetchall()
-        organizedLeavingData = organizeData(leaving)
+        organizeType = 'search'
+        organizedLeavingData = organizeData(leaving, organizeType)
         cursor.close()
 
 
@@ -140,7 +144,7 @@ def tripSearch():
                        WHERE airport_code=%s AND arrival_airport_code=%s AND DATE(departure)=%s"""
             cursor.execute(query2, (destination, startingPoint, retDate))
             returning = cursor.fetchall()
-            organizedReturningData = organizeData(returning)
+            organizedReturningData = organizeData(returning, 'search')
             cursor.close()
             combinedData =  zip(organizedLeavingData, organizedReturningData)
         else:
@@ -195,11 +199,14 @@ def actualTicketPurchasel():
     purchaseCardNum = request.form['purchaseCardNum']
     purchaseCardExp = request.form['purchaseCardExp']
     cursor = conn.cursor()
-    query = """SELECT MAX(ticket_id), MAX(purchase_id), NOW() FROM purchase"""
+    query = """SELECT MAX(purchase_id), NOW() FROM purchase"""
     cursor.execute(query)
     queryInfo = cursor.fetchall()
+    query2 = """SELECT MAX(ticket_id) FROM ticket"""
+    cursor.execute(query2)
+    queryInfo2 = cursor.fetchall()
     cursor.close()
-    ticket_id = queryInfo[0]['MAX(ticket_id)'] + 1
+    ticket_id = queryInfo2[0]['MAX(ticket_id)'] + 1
     purchase_id = queryInfo[0]['MAX(purchase_id)'] + 1
     now = queryInfo[0]['NOW()']
     cursor = conn.cursor()
@@ -495,7 +502,7 @@ def homepage():
                 WHERE flight.airport_code=%s AND flight.arrival_airport_code=%s AND DATE(flight.departure)=%s and flight.departure > NOW()"""
         cursor.execute(query, (startingPoint, destination, deptDate))
         leaving = cursor.fetchall()
-        organizedLeavingData = organizeData(leaving)
+        organizedLeavingData = organizeData(leaving, 'search')
         cursor.close()
 
         # only happens if round-trip
@@ -506,7 +513,7 @@ def homepage():
                        WHERE airport_code=%s AND arrival_airport_code=%s AND DATE(departure)=%s"""
             cursor.execute(query2, (destination, startingPoint, retDate))
             returning = cursor.fetchall()
-            organizedReturningData = organizeData(returning)
+            organizedReturningData = organizeData(returning, 'search')
             cursor.close()
             combinedData = zip(organizedLeavingData, organizedReturningData)
         else:
