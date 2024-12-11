@@ -35,6 +35,12 @@
     <input type="text" name="country" placeholder="country"/></br>
     <label for="num_terminals">Number of Terminals :</label>
     <input type="number" name="num_terminals" placeholder="num_terminals"/></br>
+    <label for="type">Type: </label>
+    <select name="type" id="type" required>
+        <option value="Domestic">Domestic</option>
+        <option value="International">International</option>
+        <option value="Both">Both</option>
+    </select><br>
     <input type="submit" value= addAirport />
     {% if error %}
         <p class="error"><strong>Error:</strong>{{error}}</p>

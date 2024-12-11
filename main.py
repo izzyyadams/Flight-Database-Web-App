@@ -65,8 +65,6 @@ def organizeData(results):
         if capacityResult:
             capacity = capacityResult[0]['capacity']
         cursor.close()
-        print(tickets)
-        print(capacity)
         if tickets > 0.8 * capacity:
             flightInfo['basePrice'] = (flightInfo['basePrice']  * Decimal('1.25')).quantize(Decimal('0.00'))
         if tickets < capacity:
@@ -95,10 +93,13 @@ def userHome():
             FROM ticket INNER JOIN flight ON ticket.flight_num = flight.flight_num 
             WHERE ticket.email = %s and flight.departure > NOW()
             """
+    print(email)
     cursor2.execute(query, (email,))
     userFlights = cursor2.fetchall()
     cursor2.close()
+    print(userFlights)
     flightInfoList = organizeData(userFlights)
+    print(flightInfoList)
 
     return render_template('userHome.html', name=name, flightInfo=flightInfoList)
     
@@ -188,9 +189,11 @@ def actualTicketPurchasel():
     purchaseEmail =request.form['purchaseEmail']
     purchaseFirstName = request.form['purchaseFirstName']
     purchaseLastName = request.form['purchaseLastName']
+    purchaseCardType = request.form['cardType']
     rating = None
     comments = None
     purchaseCardNum = request.form['purchaseCardNum']
+    purchaseCardExp = request.form['purchaseCardExp']
     cursor = conn.cursor()
     query = """SELECT MAX(ticket_id), MAX(purchase_id), NOW() FROM purchase"""
     cursor.execute(query)
@@ -202,11 +205,11 @@ def actualTicketPurchasel():
     cursor = conn.cursor()
     query = """INSERT INTO `Ticket` (`ticket_id`, `email`, `flight_num`, `rating`, `comments`, `calc_price`, `first_name`, `last_name`, `dob`) 
             VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-    query2 = """INSERT INTO `Purchase` (`purchase_id`, `ticket_id`, `purchase_date_time`, `card_info`) 
-            VALUES(%s, %s, %s, %s)
+    query2 = """INSERT INTO `Purchase` (`purchase_id`, `ticket_id`, `purchase_date_time`, `card_info`, `card_exp`, `card_type`) 
+            VALUES(%s, %s, %s, %s, %s, %s)
             """
     cursor.execute(query, (ticket_id, purchaseEmail, flight_num1, rating, comments, calc_price1, purchaseFirstName, purchaseLastName, purchaseDOBDate))
-    cursor.execute(query2, (purchase_id, ticket_id, now, purchaseCardNum))
+    cursor.execute(query2, (purchase_id, ticket_id, now, purchaseCardNum, purchaseCardExp, purchaseCardType))
     conn.commit()
     flight_num2 = request.form['purchaseInfoNum2']
     calc_price2 = request.form['purchaseInfoPrice2']
@@ -549,6 +552,7 @@ def customerRegister():
         first_name = request.form['first_name']
         last_name = request.form['last_name']
         password = request.form['password']
+        phone_number = request.form['phone_number']
 
 
         dob = request.form['dob']
@@ -568,10 +572,10 @@ def customerRegister():
             return render_template("customerRegister.html", error=error)
 
         else:
-            ins = 'INSERT INTO Customer VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)'
+            ins = 'INSERT INTO Customer VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
             cursor.execute(ins, (
             username, passport_country, first_name, last_name, password, dob, address, passport_number,
-            passport_exp_date))
+            passport_exp_date, phone_number))
 
             conn.commit()
             cursor.close()
@@ -705,7 +709,7 @@ def addAirplane():
                 #cursor.close()
                 return render_template("addAirplane.html", error=error)
             else:
-                ins = 'INSERT INTO Airplane VALUES (%s, %s, %s, %s, %s, %s)'
+                ins = 'INSERT INTO Airplane(airplane_id, airline_name, manufacturer, model_number, manufacture_date, num_seats) VALUES (%s, %s, %s, %s, %s, %s)'
                 cursor.execute(ins, (airplane_id, airline_name, manufacturer, model_number, manufactur_date, num_seats))
                 conn.commit()
                 #cursor.close()
@@ -736,6 +740,7 @@ def addAirport():
             city = request.form['city']
             country = request.form['country']
             num_terminals = request.form['num_terminals']
+            airportType = request.form['type']
 
             cursor = conn.cursor()
             query = 'SELECT * FROM Airport WHERE airport_code = %s'
@@ -748,8 +753,8 @@ def addAirport():
                 return render_template(addAirport.template, error=error)
 
             else:
-                ins = 'INSERT INTO Airport VALUES (%s, %s, %s, %s, %s)'
-                cursor.execute(ins, (airport_code, airport_name, city, country, num_terminals))
+                ins = 'INSERT INTO Airport VALUES (%s, %s, %s, %s, %s, %s)'
+                cursor.execute(ins, (airport_code, airport_name, city, country, num_terminals, airportType))
                 conn.commit()
                 cursor.close()
                 flash("Airport added!", "success")
