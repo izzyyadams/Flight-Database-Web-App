@@ -68,7 +68,7 @@ def organizeData(results, organizeType):
         if tickets > 0.8 * capacity:
             flightInfo['basePrice'] = (flightInfo['basePrice']  * Decimal('1.25')).quantize(Decimal('0.00'))
         if organizeType == 'search' and tickets < capacity:
-            flightInfo.append(flightInfo)
+            flightInfoList.append(flightInfo)
         if organizeType == 'mine':
             flightInfoList.append(flightInfo)
         cursor.close()
