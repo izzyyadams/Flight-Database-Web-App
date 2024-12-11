@@ -602,8 +602,8 @@ def staffRegister():
         last_name = request.form['last_name']
         dob = request.form['dob']
         password = request.form['password']
-        phone_number = request.form['phone_number']
-        email = request.form['email']
+        phone_numbers = request.form.getlist['phone_number[]']
+        emails = request.form.getlist['email[]']
 
         cursor = conn.cursor()
         query = 'SELECT * FROM Staff WHERE username = %s'
@@ -617,8 +617,16 @@ def staffRegister():
             return render_template("staffRegister.html", error=error)
 
         else:
-            ins = "INSERT INTO Staff VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-            cursor.execute(ins, (username, airline_name, first_name, last_name, dob, password, phone_number, email))
+            ins = "INSERT INTO Staff VALUES (%s, %s, %s, %s, %s, %s)"
+            cursor.execute(ins, (username, airline_name, first_name, last_name, dob, password))
+
+            email_q = "INSERT INTO StaffEmail (username, email) VALUES (%s, %s)"
+            for email in emails:
+              cursor.execute(email_q, (username, email))
+
+            phone_q = "INSERT INTO StaffPhones (username, phone_number) VALUES (%s, %s)"
+            for phone in phone_numbers:
+              cursor.execute(phone_q, (username, phone))
             conn.commit()
             cursor.close()
 
