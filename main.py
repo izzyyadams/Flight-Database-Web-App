@@ -559,7 +559,7 @@ def customerRegister():
         first_name = request.form['first_name']
         last_name = request.form['last_name']
         password = request.form['password']
-        phone_number = request.form['phone_number']
+        phone_numbers = request.form.getlist('phone_numbers[]')
 
 
         dob = request.form['dob']
@@ -579,10 +579,16 @@ def customerRegister():
             return render_template("customerRegister.html", error=error)
 
         else:
-            ins = 'INSERT INTO Customer VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+            ins = 'INSERT INTO Customer VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)'
             cursor.execute(ins, (
             username, passport_country, first_name, last_name, password, dob, address, passport_number,
-            passport_exp_date, phone_number))
+            passport_exp_date))
+
+            phone_q = "INSERT INTO UserPhoneNumbers (email, phone_number) VALUES (%s, %s)"
+            for phone in phone_numbers:
+              cursor.execute(phone_q, (username, phone))
+            conn.commit()
+            
 
             conn.commit()
             cursor.close()
@@ -602,8 +608,8 @@ def staffRegister():
         last_name = request.form['last_name']
         dob = request.form['dob']
         password = request.form['password']
-        phone_numbers = request.form.getlist['phone_number[]']
-        emails = request.form.getlist['email[]']
+        phone_numbers = request.form.getlist('phone_numbers[]')
+        emails = request.form.getlist('emails[]')
 
         cursor = conn.cursor()
         query = 'SELECT * FROM Staff WHERE username = %s'
@@ -620,11 +626,12 @@ def staffRegister():
             ins = "INSERT INTO Staff VALUES (%s, %s, %s, %s, %s, %s)"
             cursor.execute(ins, (username, airline_name, first_name, last_name, dob, password))
 
-            email_q = "INSERT INTO StaffEmail (username, email) VALUES (%s, %s)"
+            email_q = "INSERT INTO StaffEmails (username, email) VALUES (%s, %s)"
+            print(emails)
             for email in emails:
               cursor.execute(email_q, (username, email))
 
-            phone_q = "INSERT INTO StaffPhones (username, phone_number) VALUES (%s, %s)"
+            phone_q = "INSERT INTO StaffPhoneNumbers (username, phone_number) VALUES (%s, %s)"
             for phone in phone_numbers:
               cursor.execute(phone_q, (username, phone))
             conn.commit()
