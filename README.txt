@@ -27,4 +27,4 @@ Work Division:
 Employee functionality – Isabelle Larson
 Customer functionality & app styling – Isabelle Adams
 
-How to Run:
+Demo: https://drive.google.com/file/d/1eTZHnG7lWBu0Mln2ZT55T_ZDkn_2lyka/view?usp=sharing
